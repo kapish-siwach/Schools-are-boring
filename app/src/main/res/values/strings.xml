@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Schools are Boring</string>
+    <string name="title_activity_signup">SignupActivity</string>
+    <string name="title_activity_usertype">UsertypeActivity</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_students">Students</string>
+</resources>
