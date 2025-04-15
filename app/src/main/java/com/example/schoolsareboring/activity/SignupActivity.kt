@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.PreferenceManager
-import com.example.schoolsareboring.UserViewModel
+import com.example.schoolsareboring.room.UserViewModel
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.models.UserData
 
@@ -71,7 +71,7 @@ class SignupActivity : ComponentActivity() {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun Signup(modifier: Modifier = Modifier,
-           viewModel: UserViewModel= viewModel()) {
+           viewModel: UserViewModel = viewModel()) {
     val context = LocalContext.current
     val name = remember { mutableStateOf("") }
     val email = remember { mutableStateOf("") }
@@ -82,7 +82,7 @@ fun Signup(modifier: Modifier = Modifier,
     var passwordVisible by remember { mutableStateOf(false) }
     var conPasswordVisible by remember { mutableStateOf(false) }
     val preferenceManager = remember { PreferenceManager(context) }
-
+    val viewModel: UserViewModel = viewModel()
 
     Column(
         modifier = Modifier
@@ -102,7 +102,6 @@ fun Signup(modifier: Modifier = Modifier,
                 .padding(top=10.dp,start=8.dp/*,end=8.dp*/, /*bottom = 8.dp*/)
                ,
         ) {
-
 
             Text(
                 text = "Sign Up",
@@ -158,7 +157,7 @@ fun Signup(modifier: Modifier = Modifier,
                         ""
                     }
                 },
-//                placeholder = { Text(text = "Password") },
+//              placeholder = { Text(text = "Password") },
                 label = { Text(text = "Password") },
                 singleLine = true,
                 modifier = Modifier
@@ -232,11 +231,17 @@ fun Signup(modifier: Modifier = Modifier,
                     }else if (passwordError.value.trim().isNotEmpty())
                         errorMsg.value = ""
                     else {
-                        errorMsg.value = ""
-                        storeData(name,email,password,confmPassword,preferenceManager,viewModel)
-                        context.startActivity(Intent(context,MainActivity::class.java))
-//                        Toast.makeText(context, "Signup Successful.", Toast.LENGTH_SHORT).show()
-                        clearEntries(name,email,password,confmPassword)
+                        viewModel.getUserByEmail(email.value) { emailExists ->
+                            if (emailExists) {
+                                errorMsg.value = "Email already exists!"
+                            } else {
+                                errorMsg.value = ""
+                                storeData(name, email, password, confmPassword, preferenceManager, viewModel)
+                                context.startActivity(Intent(context, MainActivity::class.java))
+                                clearEntries(name, email, password, confmPassword)
+                            }
+                        }
+
                     }
                 }, modifier = Modifier.fillMaxWidth().padding(top=10.dp, end = 10.dp,start=10.dp),
                 colors = ButtonDefaults.elevatedButtonColors(

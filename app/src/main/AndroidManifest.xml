@@ -15,6 +15,16 @@
         android:theme="@style/Theme.SchoolsAreBoring"
         tools:targetApi="31">
         <activity
+            android:name=".activity.StudentLogin"
+            android:exported="false"
+            android:label="@string/title_activity_student_login"
+            android:theme="@style/Theme.SchoolsAreBoring" />
+        <activity
+            android:name=".activity.AddStudentActivity"
+            android:exported="false"
+            android:label="@string/title_activity_add_student"
+            android:theme="@style/Theme.SchoolsAreBoring" />
+        <activity
             android:name=".activity.Students"
             android:exported="false"
             android:label="@string/title_activity_students"

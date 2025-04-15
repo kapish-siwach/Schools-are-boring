@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.PreferenceManager
-import com.example.schoolsareboring.UserViewModel
+import com.example.schoolsareboring.room.UserViewModel
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
 
 class LoginActivity : ComponentActivity() {
@@ -58,7 +58,6 @@ fun LoginScreen(modifier: Modifier = Modifier) {
     val errorMsg = remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     val preferenceManager = remember { PreferenceManager(context) }
-    val loading = remember { mutableStateOf(false) }
     val viewModel: UserViewModel = viewModel()
     Column(
         modifier = Modifier
@@ -132,28 +131,13 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 )
             }
 
-            if (loading.value) {
-                CircularProgressIndicator(modifier = Modifier.padding(12.dp))
-            }
 
             ElevatedButton(
                 onClick = {
                     if (email.value.isEmpty() || password.value.isEmpty()) {
                         errorMsg.value = "All fields are required!!"
                     } else {
-                        loading.value = true
-//                        if (checkUserCredentials(email, password,viewModel) /*checkUserInput(email, password, preferenceManager, errorMsg)*/) {
-//                            loading.value = false
-//                            errorMsg.value = ""
-//                            preferenceManager.setLoggedIn(true)
-//                            context.startActivity(Intent(context, MainActivity::class.java))
-//                            clearEntries(email, password)
-//                        } else {
-//                            loading.value = false
-//                        }
-
                         viewModel.checkUserCredentials(email.value, password.value) { isValid ->
-                            loading.value = false
                             if (isValid) {
                                 errorMsg.value = ""
                                 preferenceManager.setLoggedIn(true)

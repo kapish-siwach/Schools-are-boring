@@ -161,7 +161,7 @@ fun SelectUserType(modifier: Modifier = Modifier) {
                    .shadow(3.dp,
                        shape = RoundedCornerShape(8.dp))
                    .clickable {
-                       Toast.makeText(context,"Coming soon",Toast.LENGTH_SHORT).show()
+                      context.startActivity(Intent(context,StudentLogin::class.java))
                    },
                contentAlignment = Alignment.Center,
 
@@ -176,6 +176,7 @@ fun SelectUserType(modifier: Modifier = Modifier) {
                            .padding(bottom = 10.dp)
                            .clip(CircleShape)
                    )
+
 
                    Text("Student", fontSize = 26.sp, textAlign = TextAlign.Center,modifier=Modifier.fillMaxWidth())
                }

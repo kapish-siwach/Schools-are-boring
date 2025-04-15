@@ -4,4 +4,6 @@
     <string name="title_activity_usertype">UsertypeActivity</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_students">Students</string>
+    <string name="title_activity_add_student">AddStudentActivity</string>
+    <string name="title_activity_student_login">StudentLogin</string>
 </resources>
