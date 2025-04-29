@@ -237,10 +237,9 @@ fun Signup(modifier: Modifier = Modifier,
                             } else {
                                 errorMsg.value = ""
                                 storeData(name, email, password, confmPassword, preferenceManager, viewModel)
-                                context.startActivity(Intent(context, MainActivity::class.java).apply {
-                                    putExtra("name",name.value)
-                                    putExtra("userType","admin")
-                                })
+                                preferenceManager.saveData("name",name.value)
+                                preferenceManager.saveData("userType","admin")
+                                context.startActivity(Intent(context, MainActivity::class.java))
                                 clearEntries(name, email, password, confmPassword)
                             }
                         }

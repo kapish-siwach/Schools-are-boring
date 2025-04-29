@@ -73,9 +73,10 @@ class AddTeachersActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val teacherData = intent.getSerializableExtra("TeacherData") as? TeachersData
+        val isEditable = intent.getBooleanExtra("nonEditable",true)
         setContent {
             SchoolsAreBoringTheme {
-                    AddTeachersScreen(teacherData)
+                    AddTeachersScreen(teacherData,isEditable)
                 }
             }
         }
@@ -85,7 +86,7 @@ class AddTeachersActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
-fun AddTeachersScreen(teachersData: TeachersData? =null ,modifier: Modifier = Modifier.verticalScroll(rememberScrollState())) {
+fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modifier: Modifier = Modifier.verticalScroll(rememberScrollState())) {
     val context= LocalContext.current
     val name = remember { mutableStateOf(teachersData?.name?: "") }
     val email = remember { mutableStateOf( teachersData?.email?:"") }
@@ -105,7 +106,7 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,modifier: Modifier = Mo
 
     val isEditMode = teachersData != null
     val isSubmitted = remember { mutableStateOf(if (isEditMode) "Update" else "Submit") }
-    val title= remember { mutableStateOf( if(isEditMode) "Update Teacher Details" else "Add New Teacher") }
+    val title = remember { mutableStateOf(if(!isEditable) "Profile" else if (isEditMode) "Update Teacher Details" else "Add New Teacher") }
 
 
     val isFormValid by derivedStateOf {
@@ -159,7 +160,7 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,modifier: Modifier = Mo
         ) {
             Column (modifier=Modifier.fillMaxWidth()) {
                 FilledIconButton(
-                    onClick = { launcher.launch("image/*") },
+                    onClick = { if(isEditable) launcher.launch("image/*") },
                     modifier = Modifier
                         .width(100.dp)
                         .height(100.dp)
@@ -188,13 +189,13 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,modifier: Modifier = Mo
                 }
                 Column(modifier=Modifier.padding(horizontal = 10.dp)) {
 
-                UserInputField("Full Name",name,Icons.Default.Person,KeyboardType.Text)
+                UserInputField("Full Name",name,Icons.Default.Person,KeyboardType.Text, enabled = isEditable)
 
-                UserInputField("Father's Name",fatherName,Icons.Default.Person,KeyboardType.Text)
+                UserInputField("Father's Name",fatherName,Icons.Default.Person,KeyboardType.Text, enabled = isEditable)
 
-                UserInputField("Mother's Name",motherName,Icons.Default.Person,KeyboardType.Text)
+                UserInputField("Mother's Name",motherName,Icons.Default.Person,KeyboardType.Text, enabled = isEditable)
 
-                UserInputField("Phone",phone,Icons.Default.Phone,KeyboardType.Phone,
+                UserInputField("Phone",phone,Icons.Default.Phone,KeyboardType.Phone,enabled = isEditable,
                     onValueChange = {
                         phone.value = it
                         phoneError.value = if (isPhoneValid(it)) "" else "Invalid phone number"
@@ -204,7 +205,7 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,modifier: Modifier = Mo
                     Text(phoneError.value, color = MaterialTheme.colorScheme.error,modifier=Modifier.padding(start = 10.dp))
                 }
 
-                UserInputField("Email",email,Icons.Default.Email,KeyboardType.Email,onValueChange = {
+                UserInputField("Email",email,Icons.Default.Email,KeyboardType.Email,enabled = isEditable,onValueChange = {
                     email.value = it
                     emailError.value = if (isEmailValid(it)) "" else "Invalid email format"
                 }
@@ -216,17 +217,19 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,modifier: Modifier = Mo
 
                 DOBDatePicker(
                     dob = dob.value,
-                    onDateSelected = { dob.value = it }
+                    onDateSelected = { dob.value = it },
+                    enabled = isEditable
                 )
 
                 GenderRadioButtons(
                     selectedGender = gender.value,
-                    onGenderSelected = { gender.value = it }
+                    onGenderSelected = { gender.value = it },
+                    enabled = isEditable
                 )
 
-                UserInputField("Subject",subject,Icons.Outlined.Info,KeyboardType.Text)
+                UserInputField("Subject",subject,Icons.Outlined.Info,KeyboardType.Text, enabled = isEditable)
 
-                UserInputField("Unique Code",uniqueCode,Icons.Outlined.Lock,KeyboardType.Text)
+                UserInputField("Unique Code",uniqueCode,Icons.Outlined.Lock,KeyboardType.Text, enabled = isEditable)
                 }
                 Row(
                     Modifier
@@ -237,51 +240,54 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,modifier: Modifier = Mo
                 ) {
 
 
-                    ElevatedButton(
-                        onClick = {
-                                    val teacher = TeachersData(
-                                        regNo = teachersData?.regNo ?: 0,
-                                        name = name.value,
-                                        fatherName = fatherName.value,
-                                        motherName = motherName.value,
-                                        phone = phone.value,
-                                        email = email.value,
-                                        dob = dob.value,
-                                        gender = gender.value,
-                                        uniqueCode = uniqueCode.value,
-                                        subject = subject.value,
-                                        imageUri = selectedImageUri.value?.toString()
-                                    )
-
-                            if (isEditMode) {
-                                viewModel.updateTeacher(teacher)
-                                Toast.makeText(context, "Teacher Updated.", Toast.LENGTH_SHORT).show()
-                                (context as Activity).finish()
-                            } else {
-                                viewModel.registerTeacher(teacher)
-                                Toast.makeText(context, "Teacher Added.", Toast.LENGTH_SHORT).show()
-                                clearFields(
-                                    name, email, fatherName, motherName,
-                                    phone, dob, subject, uniqueCode, gender,
-                                    selectedImageUri
+                  if(isEditable)  {
+                        ElevatedButton(
+                            onClick = {
+                                val teacher = TeachersData(
+                                    regNo = teachersData?.regNo ?: 0,
+                                    name = name.value,
+                                    fatherName = fatherName.value,
+                                    motherName = motherName.value,
+                                    phone = phone.value,
+                                    email = email.value,
+                                    dob = dob.value,
+                                    gender = gender.value,
+                                    uniqueCode = uniqueCode.value,
+                                    subject = subject.value,
+                                    imageUri = selectedImageUri.value?.toString()
                                 )
-                                isSubmitted.value = "Add other"
-                            }
 
-                            (context as Activity).finish()
+                                if (isEditMode) {
+                                    viewModel.updateTeacher(teacher)
+                                    Toast.makeText(context, "Teacher Updated.", Toast.LENGTH_SHORT)
+                                        .show()
+                                    (context as Activity).finish()
+                                } else {
+                                    viewModel.registerTeacher(teacher)
+                                    Toast.makeText(context, "Teacher Added.", Toast.LENGTH_SHORT)
+                                        .show()
+                                    clearFields(
+                                        name, email, fatherName, motherName,
+                                        phone, dob, subject, uniqueCode, gender,
+                                        selectedImageUri
+                                    )
+                                    isSubmitted.value = "Add other"
+                                }
 
-                        },
-                        enabled = isFormValid,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            isSubmitted.value,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(5.dp)
-                        )
+                                (context as Activity).finish()
+
+                            },
+                            enabled = isFormValid,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                isSubmitted.value,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 18.sp,
+                                modifier = Modifier.padding(5.dp)
+                            )
+                        }
                     }
-
                 }
             }
         }

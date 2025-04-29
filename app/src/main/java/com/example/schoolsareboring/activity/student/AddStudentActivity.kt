@@ -40,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -56,19 +57,19 @@ class  AddStudentActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val studentData = intent.getSerializableExtra("studentData") as? StudentData
-
+        val editable=intent.getBooleanExtra("nonEditable",true)
         setContent {
             SchoolsAreBoringTheme {
-                AddStudent(studentData)
+                AddStudent(studentData,editable)
             }
         }
     }
 }
-@Preview(showBackground = true)
+
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddStudent(studentData: StudentData? = null, modifier: Modifier = Modifier) {
+fun AddStudent(studentData: StudentData? = null, isEditable:Boolean) {
     val context = LocalContext.current
 
     val name = remember { mutableStateOf(studentData?.name ?: "") }
@@ -85,7 +86,7 @@ fun AddStudent(studentData: StudentData? = null, modifier: Modifier = Modifier) 
 
     val isEditMode = studentData != null
     val isSubmitted = remember { mutableStateOf(if (isEditMode) "Update" else "Submit") }
-    val title= remember { mutableStateOf( if(isEditMode) "Update Student" else "Add New Student") }
+    val title= remember { mutableStateOf( if (!isEditable) "Profile" else if(isEditMode) "Update Student" else "Add New Student") }
 
 //    val name = remember { mutableStateOf("") }
 //    val email = remember { mutableStateOf("") }
@@ -145,7 +146,7 @@ fun AddStudent(studentData: StudentData? = null, modifier: Modifier = Modifier) 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(title.value) },
+                title = { Text(title.value)  },
                 navigationIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.back_arrow),
@@ -189,7 +190,8 @@ fun AddStudent(studentData: StudentData? = null, modifier: Modifier = Modifier) 
                             .width(100.dp)
                             .height(100.dp)
                             .background(color = Color.Transparent)
-                            .align(Alignment.CenterHorizontally)
+                            .align(Alignment.CenterHorizontally),
+                        enabled = isEditable
                     ) {
                         if (selectedImageUri.value != null) {
                             AsyncImage(
@@ -216,7 +218,8 @@ fun AddStudent(studentData: StudentData? = null, modifier: Modifier = Modifier) 
                         label = "Full name *",
                         value = name,
                         endIcon = Icons.Default.Person,
-                        keyboardType = KeyboardType.Text
+                        keyboardType = KeyboardType.Text,
+                        enabled = isEditable
                     )
 
                     // Father name
@@ -224,7 +227,8 @@ fun AddStudent(studentData: StudentData? = null, modifier: Modifier = Modifier) 
                         label = "Father's name *",
                         value = fatherName,
                         endIcon = Icons.Default.Person,
-                        keyboardType = KeyboardType.Text
+                        keyboardType = KeyboardType.Text,
+                        enabled = isEditable
                     )
 
                     // Mother name
@@ -232,7 +236,8 @@ fun AddStudent(studentData: StudentData? = null, modifier: Modifier = Modifier) 
                         label = "Mother's name ",
                         value = motherName,
                         endIcon = Icons.Default.Person,
-                        keyboardType = KeyboardType.Text
+                        keyboardType = KeyboardType.Text,
+                        enabled = isEditable
                     )
 
                     // Phone
@@ -241,6 +246,7 @@ fun AddStudent(studentData: StudentData? = null, modifier: Modifier = Modifier) 
                         value = phone,
                         endIcon = Icons.Default.Phone,
                         keyboardType = KeyboardType.Phone,
+                        enabled = isEditable,
                         onValueChange = {
                             phone.value = it
                             phoneError.value = if (isPhoneValid(it)) "" else "Invalid phone number"
@@ -256,6 +262,7 @@ fun AddStudent(studentData: StudentData? = null, modifier: Modifier = Modifier) 
                         value = email,
                         endIcon = Icons.Default.Email,
                         keyboardType = KeyboardType.Email,
+                        enabled = isEditable,
                         onValueChange = {
                             email.value = it
                             emailError.value = if (isEmailValid(it)) "" else "Invalid email format"
@@ -277,19 +284,22 @@ fun AddStudent(studentData: StudentData? = null, modifier: Modifier = Modifier) 
                     // DOB Picker
                     DOBDatePicker(
                         dob = dob.value,
-                        onDateSelected = { dob.value = it }
+                        onDateSelected = { dob.value = it },
+                        enabled=isEditable
                     )
 
                     // Gender Radio Buttons
                     GenderRadioButtons(
                         selectedGender = gender.value,
-                        onGenderSelected = { gender.value = it }
+                        onGenderSelected = { gender.value = it },
+                        enabled=isEditable
                     )
 
                     // Class Picker
                     ClassDropdownPicker(
                         selectedClass = clazz.value,
-                        onClassSelected = { clazz.value = it }
+                        onClassSelected = { clazz.value = it },
+                        enabled=isEditable
                     )
 
                     // Roll Number
@@ -297,7 +307,8 @@ fun AddStudent(studentData: StudentData? = null, modifier: Modifier = Modifier) 
                         label = "Roll no *",
                         value = rollNo,
                         endIcon = Icons.Default.AccountBox,
-                        keyboardType = KeyboardType.Number
+                        keyboardType = KeyboardType.Number,
+                        enabled = isEditable
                     )
                     if (rollNoError.value.isNotEmpty()) {
                         Text(rollNoError.value, color = MaterialTheme.colorScheme.error)
@@ -309,65 +320,89 @@ fun AddStudent(studentData: StudentData? = null, modifier: Modifier = Modifier) 
 
 //                    Buttons
 
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(start = 20.dp, end = 20.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
+                    if(isEditable){
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(start = 20.dp, end = 20.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
 
 
-                        ElevatedButton(
-                            onClick = {
-                                viewModel.isRollNoExist(clazz.value, rollNo.value) { rollNoExist ->
+                            ElevatedButton(
+                                onClick = {
+                                    viewModel.isRollNoExist(
+                                        clazz.value,
+                                        rollNo.value
+                                    ) { rollNoExist ->
 
-                                    val isChangingRollOrClass = studentData?.clazz != clazz.value || studentData.rollNo != rollNo.value
-                                    if (!isEditMode && rollNoExist || (isEditMode && isChangingRollOrClass && rollNoExist)) {
-                                        rollNoError.value = "Roll no already exists in this class!"
-                                    } else {
-                                        rollNoError.value = ""
-                                        val student = StudentData(
-                                            regNo = studentData?.regNo ?: 0,
-                                            name = name.value,
-                                            fatherName = fatherName.value,
-                                            motherName = motherName.value,
-                                            phone = phone.value,
-                                            email = email.value,
-                                            dob = dob.value,
-                                            gender = gender.value,
-                                            clazz = clazz.value,
-                                            rollNo = rollNo.value,
-                                            imageUri = selectedImageUri.value?.toString() ?: studentData?.imageUri
-                                        )
-
-                                        if (isEditMode) {
-                                            viewModel.updateStudent(student)
-                                            Toast.makeText(context, "Student Updated.", Toast.LENGTH_SHORT).show()
-                                            (context as Activity).finish()
+                                        val isChangingRollOrClass =
+                                            studentData?.clazz != clazz.value || studentData.rollNo != rollNo.value
+                                        if (!isEditMode && rollNoExist || (isEditMode && isChangingRollOrClass && rollNoExist)) {
+                                            rollNoError.value =
+                                                "Roll no already exists in this class!"
                                         } else {
-                                            viewModel.registerStudent(student)
-                                            Toast.makeText(context, "Student Added.", Toast.LENGTH_SHORT).show()
-                                            clearFields(
-                                                name, email, fatherName, motherName,
-                                                phone, dob, clazz, rollNo, gender, selectedImageUri
+                                            rollNoError.value = ""
+                                            val student = StudentData(
+                                                regNo = studentData?.regNo ?: 0,
+                                                name = name.value,
+                                                fatherName = fatherName.value,
+                                                motherName = motherName.value,
+                                                phone = phone.value,
+                                                email = email.value,
+                                                dob = dob.value,
+                                                gender = gender.value,
+                                                clazz = clazz.value,
+                                                rollNo = rollNo.value,
+                                                imageUri = selectedImageUri.value?.toString()
+                                                    ?: studentData?.imageUri
                                             )
-                                            isSubmitted.value = "Add other"
+
+                                            if (isEditMode) {
+                                                viewModel.updateStudent(student)
+                                                Toast.makeText(
+                                                    context,
+                                                    "Student Updated.",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                (context as Activity).finish()
+                                            } else {
+                                                viewModel.registerStudent(student)
+                                                Toast.makeText(
+                                                    context,
+                                                    "Student Added.",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                clearFields(
+                                                    name,
+                                                    email,
+                                                    fatherName,
+                                                    motherName,
+                                                    phone,
+                                                    dob,
+                                                    clazz,
+                                                    rollNo,
+                                                    gender,
+                                                    selectedImageUri
+                                                )
+                                                isSubmitted.value = "Add other"
+                                            }
                                         }
                                     }
-                                }
-                            },
-                            enabled = isFormValid,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                isSubmitted.value,
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 18.sp,
-                                modifier = Modifier.padding(5.dp)
-                            )
-                        }
+                                },
+                                enabled = isFormValid,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    isSubmitted.value,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 18.sp,
+                                    modifier = Modifier.padding(5.dp)
+                                )
+                            }
 
+                        }
                     }
                 }
             }
@@ -406,7 +441,8 @@ fun UserInputField(
     value: MutableState<String>,
     endIcon: ImageVector,
     keyboardType: KeyboardType = KeyboardType.Text,
-    onValueChange: (String) -> Unit = {}
+    onValueChange: (String) -> Unit = {},
+    enabled : Boolean = true
 ) {
     OutlinedTextField(
         value = value.value,
@@ -420,7 +456,14 @@ fun UserInputField(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth(),
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        enabled = enabled,
+        colors=OutlinedTextFieldDefaults.colors(
+            disabledTextColor = Color.DarkGray,
+            disabledBorderColor = Color.DarkGray,
+            disabledLabelColor = Color.DarkGray,
+            disabledTrailingIconColor = Color.DarkGray
+        )
     )
 }
 
@@ -429,7 +472,8 @@ fun UserInputField(
 @Composable
 fun DOBDatePicker(
     dob: String,
-    onDateSelected: (String) -> Unit
+    onDateSelected: (String) -> Unit,
+    enabled: Boolean
 ) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
@@ -453,6 +497,7 @@ fun DOBDatePicker(
             .fillMaxWidth()
             .padding(8.dp)
             .clickable(
+                enabled = enabled,
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
             ) {
@@ -471,18 +516,18 @@ fun DOBDatePicker(
                 .fillMaxWidth(),
             enabled = false,
             colors = TextFieldDefaults.colors(
-                disabledTextColor = Color.Black,
+                disabledTextColor = Color.DarkGray,
                 disabledContainerColor = Color.Transparent,
-                disabledTrailingIconColor = Color.Black,
-                focusedContainerColor = Color.Black,
-                unfocusedContainerColor = Color.Black
+                disabledTrailingIconColor = Color.DarkGray,
+                focusedContainerColor = Color.DarkGray,
+                unfocusedContainerColor = Color.DarkGray
             )
         )
     }
 }
 
 @Composable
-fun GenderRadioButtons(selectedGender: String, onGenderSelected: (String) -> Unit) {
+fun GenderRadioButtons(selectedGender: String, onGenderSelected: (String) -> Unit, enabled: Boolean) {
     Column(modifier = Modifier.padding(8.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -490,7 +535,8 @@ fun GenderRadioButtons(selectedGender: String, onGenderSelected: (String) -> Uni
         ) {
             RadioButton(
                 selected = selectedGender == "Male",
-                onClick = { onGenderSelected("Male") }
+                onClick = { onGenderSelected("Male") },
+                enabled = enabled
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text("Male", modifier = Modifier.align(Alignment.CenterVertically))
@@ -502,7 +548,8 @@ fun GenderRadioButtons(selectedGender: String, onGenderSelected: (String) -> Uni
         ) {
             RadioButton(
                 selected = selectedGender == "Female",
-                onClick = { onGenderSelected("Female") }
+                onClick = { onGenderSelected("Female") },
+                enabled = enabled
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text("Female", modifier = Modifier.align(Alignment.CenterVertically))
@@ -514,7 +561,8 @@ fun GenderRadioButtons(selectedGender: String, onGenderSelected: (String) -> Uni
         ) {
             RadioButton(
                 selected = selectedGender == "Other",
-                onClick = { onGenderSelected("Other") }
+                onClick = { onGenderSelected("Other") },
+                enabled = enabled
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text("Other", modifier = Modifier.align(Alignment.CenterVertically))
@@ -524,7 +572,7 @@ fun GenderRadioButtons(selectedGender: String, onGenderSelected: (String) -> Uni
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClassDropdownPicker(selectedClass: String, onClassSelected: (String) -> Unit) {
+fun ClassDropdownPicker(selectedClass: String, onClassSelected: (String) -> Unit, enabled: Boolean) {
     val classOptions = listOf(
         "Class 1",
         "Class 2",
@@ -543,10 +591,11 @@ fun ClassDropdownPicker(selectedClass: String, onClassSelected: (String) -> Unit
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = !expanded },
+        onExpandedChange = { if (enabled) expanded = !expanded },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(8.dp),
+
     ) {
         OutlinedTextField(
             value = selectedClass,
@@ -558,7 +607,13 @@ fun ClassDropdownPicker(selectedClass: String, onClassSelected: (String) -> Unit
             },
             modifier = Modifier
                 .menuAnchor()
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            enabled = enabled,
+            colors = OutlinedTextFieldDefaults.colors(
+                disabledBorderColor = Color.DarkGray,
+                disabledLabelColor = Color.DarkGray,
+                disabledTextColor = Color.DarkGray
+            )
         )
 
         ExposedDropdownMenu(
@@ -571,7 +626,8 @@ fun ClassDropdownPicker(selectedClass: String, onClassSelected: (String) -> Unit
                     onClick = {
                         onClassSelected(className)
                         expanded = false
-                    }
+                    },
+                    enabled = enabled
                 )
             }
         }

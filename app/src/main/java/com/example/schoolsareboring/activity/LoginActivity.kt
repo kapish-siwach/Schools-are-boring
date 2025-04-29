@@ -141,11 +141,10 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                             if (admin!=null) {
                                 errorMsg.value = ""
                                 preferenceManager.setLoggedIn(true)
-                                context.startActivity(Intent(context, MainActivity::class.java).apply {
-                                    putExtra("name",admin.name)
-                                    putExtra("userType","admin")
-                                    putExtra("userData",admin)
-                                })
+                                preferenceManager.saveData("name",admin.name)
+                                preferenceManager.saveData("userType","admin")
+                                preferenceManager.saveUserData("userData",admin)
+                                context.startActivity(Intent(context, MainActivity::class.java))
                                 clearEntries(email, password)
                             } else {
                                 errorMsg.value = "Invalid email or password!"

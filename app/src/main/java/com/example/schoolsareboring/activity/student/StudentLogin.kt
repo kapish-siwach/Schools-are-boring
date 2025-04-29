@@ -105,7 +105,8 @@ fun StudentLoginMethod(modifier: Modifier = Modifier) {
                 label = "Registration No",
                 value = stuRegNo,
                 endIcon = Icons.Default.AccountBox,
-                keyboardType = KeyboardType.Number
+                keyboardType = KeyboardType.Number,
+                enabled = true
             )
 
 //            Email id input
@@ -113,7 +114,8 @@ fun StudentLoginMethod(modifier: Modifier = Modifier) {
                 label = "Email",
                 value = stuEmail,
                 endIcon = Icons.Default.Email,
-                keyboardType = KeyboardType.Email
+                keyboardType = KeyboardType.Email,
+                enabled = true
             )
 
             if (errorMsg.value.trim().isNotEmpty()) {
@@ -135,11 +137,9 @@ fun StudentLoginMethod(modifier: Modifier = Modifier) {
                             errorMsg.value = ""
                             preferenceManager.setLoggedIn(true)
                             preferenceManager.saveData("userType","student")
-                            val intent=Intent(context,MainActivity::class.java).apply {
-                                putExtra("userData",student)
-                                putExtra("userType","student")
-                                putExtra("name",student.name)
-                            }
+                            preferenceManager.saveData("name",student.name)
+                            preferenceManager.saveUserData("userData",student)
+                            val intent=Intent(context,MainActivity::class.java)
                             context.startActivity(intent)
                             clearEntries(stuEmail, stuRegNo)
                         } else {

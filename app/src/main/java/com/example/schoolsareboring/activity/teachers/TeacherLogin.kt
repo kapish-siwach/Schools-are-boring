@@ -136,11 +136,9 @@ fun TeacherLoginScreen( modifier: Modifier = Modifier) {
                             errorMsg.value = ""
                             preferenceManager.setLoggedIn(true)
                             preferenceManager.saveData("userType","teacher")
-                            context.startActivity(Intent(context, MainActivity::class.java).apply {
-                                putExtra("name",teacher.name)
-                                putExtra("userType","teacher")
-                                putExtra("userData",teacher)
-                            })
+                            context.startActivity(Intent(context, MainActivity::class.java))
+                            preferenceManager.saveData("name",teacher.name)
+                            preferenceManager.saveUserData("userData",teacher)
                             clearEntries(teacherEmail, teacherCode)
                         } else {
                             errorMsg.value = "Teacher not found !!"
