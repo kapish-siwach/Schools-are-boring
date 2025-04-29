@@ -3,29 +3,49 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/schools_are_boring"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/schools_are_boring"
         android:supportsRtl="true"
         android:theme="@style/Theme.SchoolsAreBoring"
         tools:targetApi="31">
         <activity
-            android:name=".activity.StudentLogin"
+            android:name=".activity.teachers.TeacherLogin"
+            android:exported="false"
+            android:label="@string/title_activity_teacher_login"
+            android:theme="@style/Theme.SchoolsAreBoring" />
+        <activity
+            android:name=".activity.teachers.AddTeachersActivity"
+            android:exported="false"
+            android:label="@string/title_activity_add_teachers"
+            android:theme="@style/Theme.SchoolsAreBoring" />
+        <activity
+            android:name=".activity.teachers.Teachers"
+            android:exported="false"
+            android:label="@string/title_activity_teachers"
+            android:theme="@style/Theme.SchoolsAreBoring" />
+        <activity
+            android:name=".activity.student.StudentLogin"
             android:exported="false"
             android:label="@string/title_activity_student_login"
             android:theme="@style/Theme.SchoolsAreBoring" />
         <activity
-            android:name=".activity.AddStudentActivity"
+            android:name=".activity.student.AddStudentActivity"
             android:exported="false"
             android:label="@string/title_activity_add_student"
             android:theme="@style/Theme.SchoolsAreBoring" />
         <activity
-            android:name=".activity.Students"
+            android:name=".activity.student.Students"
             android:exported="false"
             android:label="@string/title_activity_students"
             android:theme="@style/Theme.SchoolsAreBoring" />

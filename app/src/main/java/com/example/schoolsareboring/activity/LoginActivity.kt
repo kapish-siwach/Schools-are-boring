@@ -137,11 +137,15 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                     if (email.value.isEmpty() || password.value.isEmpty()) {
                         errorMsg.value = "All fields are required!!"
                     } else {
-                        viewModel.checkUserCredentials(email.value, password.value) { isValid ->
-                            if (isValid) {
+                        viewModel.checkUserCredentials(email.value, password.value) { admin ->
+                            if (admin!=null) {
                                 errorMsg.value = ""
                                 preferenceManager.setLoggedIn(true)
-                                context.startActivity(Intent(context, MainActivity::class.java))
+                                context.startActivity(Intent(context, MainActivity::class.java).apply {
+                                    putExtra("name",admin.name)
+                                    putExtra("userType","admin")
+                                    putExtra("userData",admin)
+                                })
                                 clearEntries(email, password)
                             } else {
                                 errorMsg.value = "Invalid email or password!"

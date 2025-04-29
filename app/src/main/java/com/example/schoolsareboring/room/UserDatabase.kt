@@ -5,9 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.schoolsareboring.models.StudentData
+import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.models.UserData
 
-@Database(entities = [UserData::class,StudentData::class], version = 2)
+@Database(entities = [UserData::class,StudentData::class,TeachersData::class], version = 4)
 abstract class UserDatabase :RoomDatabase() {
     abstract fun userDao(): UsersDao
 

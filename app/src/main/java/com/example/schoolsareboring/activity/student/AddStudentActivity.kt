@@ -1,14 +1,20 @@
-package com.example.schoolsareboring.activity
+package com.example.schoolsareboring.activity.student
 
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -28,52 +34,88 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.room.UserViewModel
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.models.StudentData
 import java.util.*
 
-class AddStudentActivity : ComponentActivity() {
+class  AddStudentActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val studentData = intent.getSerializableExtra("studentData") as? StudentData
+
         setContent {
             SchoolsAreBoringTheme {
-                AddStudent()
+                AddStudent(studentData)
             }
         }
     }
 }
-
+@Preview(showBackground = true)
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddStudent(modifier: Modifier = Modifier) {
+fun AddStudent(studentData: StudentData? = null, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val name = remember { mutableStateOf("") }
-    val email = remember { mutableStateOf("") }
-    val regNo = remember { mutableStateOf("") }
-    val fatherName = remember { mutableStateOf("") }
-    val motherName = remember { mutableStateOf("") }
-    val dob = remember { mutableStateOf("") }
-    val clazz = remember { mutableStateOf("") }
-    val rollNo = remember { mutableStateOf("") }
-    val phone = remember { mutableStateOf("") }
-    val gender = remember { mutableStateOf("Male") }
+
+    val name = remember { mutableStateOf(studentData?.name ?: "") }
+    val email = remember { mutableStateOf(studentData?.email ?: "") }
+    val fatherName = remember { mutableStateOf(studentData?.fatherName ?: "") }
+    val motherName = remember { mutableStateOf(studentData?.motherName ?: "") }
+    val dob = remember { mutableStateOf(studentData?.dob ?: "") }
+    val clazz = remember { mutableStateOf(studentData?.clazz ?: "") }
+    val rollNo = remember { mutableStateOf(studentData?.rollNo ?: "") }
+    val phone = remember { mutableStateOf(studentData?.phone ?: "") }
+    val gender = remember { mutableStateOf(studentData?.gender ?: "") }
+    val addImage =R.drawable.social
+    val selectedImageUri = remember { mutableStateOf(studentData?.imageUri?.let { Uri.parse(it) }) }
+
+    val isEditMode = studentData != null
+    val isSubmitted = remember { mutableStateOf(if (isEditMode) "Update" else "Submit") }
+    val title= remember { mutableStateOf( if(isEditMode) "Update Student" else "Add New Student") }
+
+//    val name = remember { mutableStateOf("") }
+//    val email = remember { mutableStateOf("") }
+//    val regNo = remember { mutableStateOf("") }
+//    val fatherName = remember { mutableStateOf("") }
+//    val motherName = remember { mutableStateOf("") }
+//    val dob = remember { mutableStateOf("") }
+//    val clazz = remember { mutableStateOf("") }
+//    val rollNo = remember { mutableStateOf("") }
+//    val phone = remember { mutableStateOf("") }
+//    val gender = remember { mutableStateOf("Male") }
+
     val viewModel: UserViewModel = viewModel()
     val rollNoError = remember { mutableStateOf("") }
     val emailError = remember { mutableStateOf("") }
     val phoneError = remember { mutableStateOf("") }
+
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            context.contentResolver.takePersistableUriPermission(
+                it,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            selectedImageUri.value = it
+        }
+    }
+
 
     val isFormValid by derivedStateOf {
         name.value.isNotBlank() &&
@@ -85,7 +127,8 @@ fun AddStudent(modifier: Modifier = Modifier) {
                 rollNo.value.isNotBlank() &&
                 email.value.isNotBlank() &&
                 emailError.value.isBlank() &&
-                phoneError.value.isBlank()
+                phoneError.value.isBlank() &&
+                selectedImageUri.value!=null
     }
 
     fun isPhoneValid(phone: String): Boolean {
@@ -102,7 +145,7 @@ fun AddStudent(modifier: Modifier = Modifier) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add new Student") },
+                title = { Text(title.value) },
                 navigationIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.back_arrow),
@@ -128,18 +171,45 @@ fun AddStudent(modifier: Modifier = Modifier) {
                     .fillMaxWidth()
                     .padding(top = 20.dp)
             ) {
-                Text(
-                    text = "Student Details",
+               /* Text(
+                    text = "Please fill all details carefully!",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    fontSize = 23.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold
-                )
+                )*/
 
                 Spacer(Modifier.height(10.dp))
 
                 Column(Modifier.padding(start = 15.dp, end = 15.dp)) {
 
+                    FilledIconButton(
+                        onClick = { launcher.launch("image/*") },
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(100.dp)
+                            .background(color = Color.Transparent)
+                            .align(Alignment.CenterHorizontally)
+                    ) {
+                        if (selectedImageUri.value != null) {
+                            AsyncImage(
+                                model = selectedImageUri.value,
+                                contentDescription = "Selected Student Pic",
+                                modifier = Modifier
+                                    .width(100.dp)
+                                    .height(100.dp),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Image(
+                                painter = painterResource(id = addImage),
+                                contentDescription = "Add Student Pic",
+                                modifier = Modifier
+                                    .width(100.dp)
+                                    .height(100.dp)
+                            )
+                        }
+                    }
 
                     // Name
                     UserInputField(
@@ -246,16 +316,19 @@ fun AddStudent(modifier: Modifier = Modifier) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        val isSubmitted = remember { mutableStateOf("Submit") }
+
 
                         ElevatedButton(
                             onClick = {
                                 viewModel.isRollNoExist(clazz.value, rollNo.value) { rollNoExist ->
-                                    if (rollNoExist) {
+
+                                    val isChangingRollOrClass = studentData?.clazz != clazz.value || studentData.rollNo != rollNo.value
+                                    if (!isEditMode && rollNoExist || (isEditMode && isChangingRollOrClass && rollNoExist)) {
                                         rollNoError.value = "Roll no already exists in this class!"
                                     } else {
                                         rollNoError.value = ""
                                         val student = StudentData(
+                                            regNo = studentData?.regNo ?: 0,
                                             name = name.value,
                                             fatherName = fatherName.value,
                                             motherName = motherName.value,
@@ -264,24 +337,37 @@ fun AddStudent(modifier: Modifier = Modifier) {
                                             dob = dob.value,
                                             gender = gender.value,
                                             clazz = clazz.value,
-                                            rollNo = rollNo.value
+                                            rollNo = rollNo.value,
+                                            imageUri = selectedImageUri.value?.toString() ?: studentData?.imageUri
                                         )
-                                        viewModel.registerStudent(student)
-                                        Toast.makeText(context, "Student Added.", Toast.LENGTH_SHORT).show()
-                                        clearFields(
-                                            name, email, fatherName, motherName,
-                                            phone, dob, clazz, rollNo, gender
-                                        )
-                                        isSubmitted.value = "Add other"
+
+                                        if (isEditMode) {
+                                            viewModel.updateStudent(student)
+                                            Toast.makeText(context, "Student Updated.", Toast.LENGTH_SHORT).show()
+                                            (context as Activity).finish()
+                                        } else {
+                                            viewModel.registerStudent(student)
+                                            Toast.makeText(context, "Student Added.", Toast.LENGTH_SHORT).show()
+                                            clearFields(
+                                                name, email, fatherName, motherName,
+                                                phone, dob, clazz, rollNo, gender, selectedImageUri
+                                            )
+                                            isSubmitted.value = "Add other"
+                                        }
                                     }
                                 }
                             },
                             enabled = isFormValid,
-                            modifier = Modifier.fillMaxWidth(),
-
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(isSubmitted.value, fontWeight = FontWeight.SemiBold, fontSize = 18.sp, modifier = Modifier.padding(5.dp))
+                            Text(
+                                isSubmitted.value,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 18.sp,
+                                modifier = Modifier.padding(5.dp)
+                            )
                         }
+
                     }
                 }
             }
@@ -298,8 +384,10 @@ fun clearFields(
     dob: MutableState<String>,
     clazz: MutableState<String>,
     rollNo: MutableState<String>,
-    gender: MutableState<String>
-) {
+    gender: MutableState<String>,
+    selectedImageUri: MutableState<Uri?>,
+
+    ) {
     name.value = ""
     email.value = ""
     fatherName.value = ""
@@ -309,6 +397,7 @@ fun clearFields(
     clazz.value = ""
     rollNo.value = ""
     gender.value = ""
+    selectedImageUri.value=null
 }
 
 @Composable
@@ -336,6 +425,7 @@ fun UserInputField(
 }
 
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun DOBDatePicker(
     dob: String,
@@ -369,17 +459,24 @@ fun DOBDatePicker(
                 datePickerDialog.show()
             }
     ) {
-        TextField(
+        OutlinedTextField(
             value = dob,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Date of Birth *") },
+            label = { Text("Date of Birth *", color = Color.Black)},
             trailingIcon = {
                 Icon(Icons.Default.Person, contentDescription = "DOB")
             },
             modifier = Modifier
                 .fillMaxWidth(),
-            enabled = false
+            enabled = false,
+            colors = TextFieldDefaults.colors(
+                disabledTextColor = Color.Black,
+                disabledContainerColor = Color.Transparent,
+                disabledTrailingIconColor = Color.Black,
+                focusedContainerColor = Color.Black,
+                unfocusedContainerColor = Color.Black
+            )
         )
     }
 }
@@ -481,10 +578,3 @@ fun ClassDropdownPicker(selectedClass: String, onClassSelected: (String) -> Unit
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewAddStudent() {
-    SchoolsAreBoringTheme {
-        AddStudent()
-    }
-}

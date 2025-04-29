@@ -5,7 +5,9 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.schoolsareboring.models.StudentData
+import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.models.UserData
 import kotlinx.coroutines.flow.Flow
 
@@ -44,4 +46,21 @@ interface UsersDao {
 
     @Query("SELECT * FROM students_table WHERE  regNo = :stuRegNo AND email = :stuEmail")
     suspend fun checkStudentCredentials(stuEmail: String,stuRegNo: String): StudentData?
+
+    @Update
+    suspend fun updateStudent(student: StudentData)
+
+//      Teachers
+
+    @Query("SELECT * FROM teachers_table")
+    fun getAllTeachers(): Flow<List<TeachersData>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTeacher(teachersData: TeachersData)
+
+    @Update
+    suspend fun updateTeacher(teachersData: TeachersData)
+
+    @Query("SELECT * FROM teachers_table WHERE email = :email AND uniqueCode = :code ")
+    suspend fun checkTeacherCredentials(email: String,code: String): TeachersData?
 }

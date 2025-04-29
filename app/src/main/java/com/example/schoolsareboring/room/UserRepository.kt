@@ -1,6 +1,8 @@
 package com.example.schoolsareboring.room
 
+import com.example.schoolsareboring.activity.teachers.Teachers
 import com.example.schoolsareboring.models.StudentData
+import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.models.UserData
 import kotlinx.coroutines.flow.Flow
 
@@ -38,5 +40,25 @@ class UserRepository(private val usersDao: UsersDao) {
 
     suspend fun checkStudentCredentials( stuEmail: String,stuRegNo: String): StudentData? {
         return usersDao.checkStudentCredentials(stuEmail,stuRegNo)
+    }
+
+    suspend fun updateStudent(student: StudentData) {
+        usersDao.updateStudent(student)
+    }
+
+//    Teachers
+
+    fun getAllTeachers():Flow<List<TeachersData>> = usersDao.getAllTeachers()
+
+    suspend fun checkTeacherCredentials(email:String,code:String):TeachersData?{
+        return usersDao.checkTeacherCredentials(email,code)
+    }
+
+    suspend fun insertTeacher(teachers: TeachersData){
+        usersDao.insertTeacher(teachers)
+    }
+
+    suspend fun updateTeacher(teachers: TeachersData){
+        usersDao.updateTeacher(teachers)
     }
 }

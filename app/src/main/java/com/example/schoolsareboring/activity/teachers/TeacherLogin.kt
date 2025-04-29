@@ -1,4 +1,4 @@
-package com.example.schoolsareboring.activity
+package com.example.schoolsareboring.activity.teachers
 
 import android.app.Activity
 import android.content.Intent
@@ -22,7 +22,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
@@ -48,17 +47,20 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
-import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
+import com.example.schoolsareboring.activity.MainActivity
+import com.example.schoolsareboring.activity.clearEntries
+import com.example.schoolsareboring.activity.student.UserInputField
+import com.example.schoolsareboring.activity.teachers.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.room.UserViewModel
 
-class StudentLogin : ComponentActivity() {
+class TeacherLogin : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             SchoolsAreBoringTheme {
                 Scaffold(modifier = Modifier.fillMaxSize().padding(WindowInsets.systemBars.asPaddingValues())) { innerPadding ->
-                    StudentLoginMethod(
+                    TeacherLoginScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -67,11 +69,12 @@ class StudentLogin : ComponentActivity() {
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-fun StudentLoginMethod(modifier: Modifier = Modifier) {
+fun TeacherLoginScreen( modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val stuRegNo= remember { mutableStateOf("") }
-    val stuEmail = remember { mutableStateOf("") }
+    val teacherCode= remember { mutableStateOf("") }
+    val teacherEmail = remember { mutableStateOf("") }
     val preferenceManager = remember { PreferenceManager(context) }
     val viewModel: UserViewModel = viewModel()
     val errorMsg = remember { mutableStateOf("") }
@@ -87,7 +90,7 @@ fun StudentLoginMethod(modifier: Modifier = Modifier) {
         }
 
         Column (Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp), horizontalAlignment = Alignment.CenterHorizontally){
-           
+
             Text(
                 text = "Log in",
                 modifier = modifier.fillMaxWidth(),
@@ -99,21 +102,20 @@ fun StudentLoginMethod(modifier: Modifier = Modifier) {
             )
             Spacer(modifier = Modifier.height(10.dp))
 
-//          Registration no input
-            UserInputField(
-                label = "Registration No",
-                value = stuRegNo,
-                endIcon = Icons.Default.AccountBox,
-                keyboardType = KeyboardType.Number
-            )
-
-//            Email id input
             UserInputField(
                 label = "Email",
-                value = stuEmail,
+                value = teacherEmail,
                 endIcon = Icons.Default.Email,
                 keyboardType = KeyboardType.Email
             )
+
+            UserInputField(
+                label = "Your Code",
+                value = teacherCode,
+                endIcon = Icons.Default.AccountBox,
+                keyboardType = KeyboardType.Text
+            )
+
 
             if (errorMsg.value.trim().isNotEmpty()) {
                 Text(
@@ -126,39 +128,35 @@ fun StudentLoginMethod(modifier: Modifier = Modifier) {
         }
         ElevatedButton(
             onClick = {
-                if (stuEmail.value.isEmpty() || stuRegNo.value.isEmpty()) {
+                if (teacherEmail.value.isEmpty() || teacherCode.value.isEmpty()) {
                     errorMsg.value = "All fields are required!!"
                 } else {
-                    viewModel.checkStudentCredentials(stuEmail.value, stuRegNo.value) { isValid ->
-                        if (isValid) {
+                    viewModel.checkTeacherCredential(teacherEmail.value, teacherCode.value) { teacher ->
+                        if (teacher!=null) {
                             errorMsg.value = ""
                             preferenceManager.setLoggedIn(true)
-                            preferenceManager.saveData("userType","student")
-                            context.startActivity(Intent(context, MainActivity::class.java))
-                            clearEntries(stuEmail, stuRegNo)
+                            preferenceManager.saveData("userType","teacher")
+                            context.startActivity(Intent(context, MainActivity::class.java).apply {
+                                putExtra("name",teacher.name)
+                                putExtra("userType","teacher")
+                                putExtra("userData",teacher)
+                            })
+                            clearEntries(teacherEmail, teacherCode)
                         } else {
-                            errorMsg.value = "Student not found !!"
+                            errorMsg.value = "Teacher not found !!"
                         }
                     }
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 10.dp, end = 10.dp, start = 10.dp),
+                .padding(top = 10.dp, end = 20.dp, start = 20.dp),
             colors = ButtonDefaults.elevatedButtonColors(
                 containerColor = Color.Blue,
                 contentColor = Color.White
             )
         ) {
-            Text("Log in", textAlign = TextAlign.Center, fontSize = 16.sp)
+            Text("Log in", textAlign = TextAlign.Center, fontSize = 16.sp, modifier = Modifier.padding(5.dp))
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SchoolsAreBoringTheme {
-        StudentLoginMethod()
     }
 }

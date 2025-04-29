@@ -41,7 +41,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
     packaging {
         resources {
@@ -75,5 +75,8 @@ dependencies {
     kapt("androidx.room:room-compiler:$roomVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+
+    implementation("io.coil-kt:coil-compose:2.2.2")
+
 }
 

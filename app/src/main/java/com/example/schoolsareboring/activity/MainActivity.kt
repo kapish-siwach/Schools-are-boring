@@ -38,7 +38,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,7 +51,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
+import com.example.schoolsareboring.activity.student.Students
+import com.example.schoolsareboring.activity.teachers.Teachers
 import com.example.schoolsareboring.models.HomeContent
+import com.example.schoolsareboring.models.StudentData
+import com.example.schoolsareboring.models.TeachersData
+import com.example.schoolsareboring.models.UserData
 import com.example.schoolsareboring.ui.theme.SchoolsAreBoringTheme
 
 class MainActivity : ComponentActivity() {
@@ -61,6 +65,19 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val userType=intent.getSerializableExtra("userType")
+        val name=intent.getSerializableExtra("name")
+        when(userType){
+            "student" ->{
+                val student=intent.getSerializableExtra("userData") as? StudentData
+            }
+            "admin" ->{
+                val admin=intent.getSerializableExtra("userData") as? UserData
+            }
+            "teacher" ->{
+                val admin=intent.getSerializableExtra("userData") as? TeachersData
+            }
+        }
         setContent {
             SchoolsAreBoringTheme {
                 Scaffold(modifier = Modifier.fillMaxSize().padding(WindowInsets.systemBars.asPaddingValues()),
@@ -69,7 +86,7 @@ class MainActivity : ComponentActivity() {
                     val preferenceManager= remember { PreferenceManager(context) }
 
                     if (preferenceManager.isLoggedIn()) {
-                    Welcome(
+                    Welcome(name.toString(),userType.toString(),
                         modifier = Modifier.padding(innerPadding)
                     )}
                     else{
@@ -83,16 +100,16 @@ class MainActivity : ComponentActivity() {
 }
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun Welcome(modifier: Modifier = Modifier) {
+fun Welcome(name: String, userType: String, modifier: Modifier = Modifier) {
     val context= LocalContext.current
     val preferenceManager= remember { PreferenceManager(context) }
 
-    MainActivityScreen(preferenceManager)
+    MainActivityScreen(name,userType,preferenceManager)
 
 }
 
 @Composable
-fun MainActivityScreen(preferenceManager: PreferenceManager) {
+fun MainActivityScreen(name: String, userType: String, preferenceManager: PreferenceManager) {
     val context = LocalContext.current
     Column(modifier = Modifier
         .fillMaxWidth()
@@ -100,12 +117,13 @@ fun MainActivityScreen(preferenceManager: PreferenceManager) {
         verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
 
         Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
+
             Column(Modifier.padding(10.dp)) {
                 Text("Hello", color = Color.Gray, fontSize = 16.sp, modifier = Modifier.padding(bottom = 2.dp))
-                Text(preferenceManager.getData("name"), color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 22.sp)
+                Text(/*preferenceManager.getData("name")*/ name, color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 22.sp)
             }
             IconButton(onClick = {
-                context.startActivity(Intent(context, LoginActivity::class.java))
+                context.startActivity(Intent(context, UsertypeActivity::class.java))
                 (context as Activity).finish()
                 preferenceManager.logOut()
             },
@@ -115,16 +133,16 @@ fun MainActivityScreen(preferenceManager: PreferenceManager) {
         }
         Spacer(Modifier.height(1.dp).fillMaxWidth().background(Color.DarkGray).border(1.dp,Color.DarkGray))
 
-        MainContent()
+        MainContent(userType)
     }
 }
 
 @Composable
-fun MainContent() {
+fun MainContent(userType: String) {
     val context = LocalContext.current
     val preferenceManager = remember { PreferenceManager(context) }
 
-    val userType = preferenceManager.getData("userType") ?: ""
+//    val userType = userTypee /*preferenceManager.getData("userType") ?: ""*/
 
     // Full list of items
     val allItems = listOf(
@@ -143,10 +161,13 @@ fun MainContent() {
 
     // Define what a student can see
     val studentVisibleRoutes = listOf("attendance", "syllabus", "time_table", "assignments", "exam", "result", "fees", "events", "inbox")
+    val teacherVisibleRoutes = listOf("students","attendance", "syllabus", "time_table", "assignments", "exam", "result", "fees", "events", "inbox")
 
     // Filter list based on userType
     val screenItems = if (userType.lowercase() == "student") {
         allItems.filter { it.route in studentVisibleRoutes }
+    }else if (userType.lowercase()=="teacher"){
+        allItems.filter { it.route in teacherVisibleRoutes }
     } else {
         allItems
     }
@@ -170,7 +191,7 @@ fun MainContent() {
                         .clickable {
                             when (item.route) {
                                 "students" -> context.startActivity(Intent(context, Students::class.java))
-                                "teacher" ->/* context.startActivity(Intent(context, TeachersActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
+                                "teacher" -> context.startActivity(Intent(context, Teachers::class.java))
                                 "attendance" -> /*context.startActivity(Intent(context, AttendanceActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "syllabus" -> /*context.startActivity(Intent(context, SyllabusActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "time_table" -> /*context.startActivity(Intent(context, TimeTableActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()

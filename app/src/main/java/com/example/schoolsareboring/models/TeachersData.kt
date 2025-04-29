@@ -4,16 +4,16 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.io.Serializable
 
-@Entity(tableName = "students_table")
-data class StudentData (
+@Entity(tableName = "teachers_table")
+data class TeachersData(
     @PrimaryKey(autoGenerate = true) val regNo:Int = 0,
     val name:String,
     val email: String,
     val fatherName:String,
     val motherName:String,
     val dob:String,
-    val clazz:String,
-    val rollNo:String,
+    val subject:String,
+    val uniqueCode:String,
     val phone: String,
     val gender:String,
     val imageUri: String? = null

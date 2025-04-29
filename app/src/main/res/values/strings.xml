@@ -6,4 +6,7 @@
     <string name="title_activity_students">Students</string>
     <string name="title_activity_add_student">AddStudentActivity</string>
     <string name="title_activity_student_login">StudentLogin</string>
+    <string name="title_activity_teachers">Teachers</string>
+    <string name="title_activity_add_teachers">AddTeachersActivity</string>
+    <string name="title_activity_teacher_login">TeacherLogin</string>
 </resources>

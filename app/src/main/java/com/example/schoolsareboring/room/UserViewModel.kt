@@ -4,9 +4,13 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.schoolsareboring.models.StudentData
+import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.models.UserData
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
 
 class UserViewModel(application: Application):AndroidViewModel(application) {
     private val dao = UserDatabase.getDatabase(application).userDao()
@@ -25,10 +29,12 @@ class UserViewModel(application: Application):AndroidViewModel(application) {
         repository.delete(userData)
     }
 
-    fun checkUserCredentials(email: String, password: String, callback: (Boolean) -> Unit) {
+    fun checkUserCredentials(email: String, password: String, callback: (UserData?) -> Unit) {
         viewModelScope.launch {
             val user = repository.getUserByCredentials(email, password)
-            callback(user != null)
+            withContext(Dispatchers.Main) {
+                callback(user)
+            }
         }
     }
 
@@ -55,11 +61,45 @@ class UserViewModel(application: Application):AndroidViewModel(application) {
         }
     }
 
-    fun checkStudentCredentials(stuEmail: String,stuRegNo: String, callback: (Boolean) -> Unit) {
+    fun checkStudentCredentials(stuEmail: String,stuRegNo: String, callback: (StudentData?) -> Unit) {
         viewModelScope.launch {
             val student = repository.checkStudentCredentials(stuEmail,stuRegNo)
-            callback(student != null)
+            withContext(Dispatchers.Main){
+                callback(student)
+            }
+
         }
     }
 
+    fun updateStudent(updatedStudent: StudentData) {
+        viewModelScope.launch {
+            repository.updateStudent(updatedStudent)
+        }
+    }
+
+
+//    Teachers
+
+    val allTeachers: Flow<List<TeachersData>> = repository.getAllTeachers()
+
+   fun registerTeacher(teachersData: TeachersData) {
+       viewModelScope.launch {
+           repository.insertTeacher(teachersData)
+       }
+   }
+
+    fun updateTeacher(updatedTeacher: TeachersData){
+        viewModelScope.launch {
+            repository.updateTeacher(updatedTeacher)
+        }
+    }
+
+    fun checkTeacherCredential(email:String,code:String,callback: (TeachersData?) -> Unit){
+        viewModelScope.launch {
+           val teacher = repository.checkTeacherCredentials(email,code)
+            withContext(Dispatchers.Main) {
+                callback(teacher)
+            }
+        }
+    }
 }
