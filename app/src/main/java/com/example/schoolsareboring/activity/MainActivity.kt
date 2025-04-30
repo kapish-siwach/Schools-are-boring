@@ -61,6 +61,7 @@ import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.activity.student.AddStudentActivity
 import com.example.schoolsareboring.activity.student.Students
+import com.example.schoolsareboring.activity.syllabus.Syllabus
 import com.example.schoolsareboring.activity.teachers.AddTeachersActivity
 import com.example.schoolsareboring.activity.teachers.Teachers
 import com.example.schoolsareboring.models.HomeContent
@@ -241,7 +242,7 @@ fun MainContent() {
                                 "students" -> context.startActivity(Intent(context, Students::class.java))
                                 "teacher" -> context.startActivity(Intent(context, Teachers::class.java))
                                 "attendance" -> /*context.startActivity(Intent(context, AttendanceActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
-                                "syllabus" -> /*context.startActivity(Intent(context, SyllabusActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
+                                "syllabus" -> context.startActivity(Intent(context, Syllabus::class.java))
                                 "time_table" -> /*context.startActivity(Intent(context, TimeTableActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "assignments" -> /*context.startActivity(Intent(context, AssignmentsActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "exam" -> /*context.startActivity(Intent(context, ExamActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()

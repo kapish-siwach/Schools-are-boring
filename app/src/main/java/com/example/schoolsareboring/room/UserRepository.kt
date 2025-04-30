@@ -2,6 +2,7 @@ package com.example.schoolsareboring.room
 
 import com.example.schoolsareboring.activity.teachers.Teachers
 import com.example.schoolsareboring.models.StudentData
+import com.example.schoolsareboring.models.SyllabusModal
 import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.models.UserData
 import kotlinx.coroutines.flow.Flow
@@ -46,6 +47,10 @@ class UserRepository(private val usersDao: UsersDao) {
         usersDao.updateStudent(student)
     }
 
+    suspend fun deleteStudent(student: StudentData){
+        usersDao.deleteStudent(student)
+    }
+
 //    Teachers
 
     fun getAllTeachers():Flow<List<TeachersData>> = usersDao.getAllTeachers()
@@ -61,4 +66,11 @@ class UserRepository(private val usersDao: UsersDao) {
     suspend fun updateTeacher(teachers: TeachersData){
         usersDao.updateTeacher(teachers)
     }
+
+//  Syllabus
+    suspend fun insertSyllabus(syllabusModal: SyllabusModal){
+        usersDao.insertSyllabus(syllabusModal)
+    }
+
+    fun getAllSyllabus():Flow<List<SyllabusModal>> = usersDao.getAllSyllabus()
 }

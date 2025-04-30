@@ -273,14 +273,6 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean) {
                     }
 
 
-//                    Registration Number
-//                    UserInputField(
-//                        label = "Registration no. *",
-//                        value = regNo,
-//                        endIcon = Icons.Default.Info,
-//                        keyboardType = KeyboardType.Number
-//                    )
-
                     // DOB Picker
                     DOBDatePicker(
                         dob = dob.value,
@@ -369,11 +361,8 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean) {
                                                 (context as Activity).finish()
                                             } else {
                                                 viewModel.registerStudent(student)
-                                                Toast.makeText(
-                                                    context,
-                                                    "Student Added.",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
+                                                Toast.makeText(context,"Student Added.",Toast.LENGTH_SHORT).show()
+                                                (context as Activity).finish()
                                                 clearFields(
                                                     name,
                                                     email,
@@ -403,6 +392,16 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean) {
                             }
 
                         }
+                    }else {
+                        Text(
+                            "Please contact admin to edit your profile.",
+                            color = Color.Red,
+                            fontSize = 18.sp,
+                            modifier = Modifier.fillMaxWidth().padding(
+                                horizontal = 10.dp,
+                                5.dp
+                            )
+                        )
                     }
                 }
             }

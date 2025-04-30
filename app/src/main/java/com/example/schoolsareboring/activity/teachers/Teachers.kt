@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.schoolsareboring.R
@@ -146,16 +147,14 @@ fun TeachersScreen() {
         ) {
 
             Spacer(modifier = Modifier.height(4.dp))
-            LazyColumn {
-                items(teachers) { teacher ->
-                    TeacherCard(teacher)
+            if (teachers.isEmpty()) {
+                Text("No data found!!", fontSize = 18 .sp)
+            } else {
+                LazyColumn {
+                    items(teachers) { teacher ->
+                        TeacherCard(teacher)
+                    }
                 }
-                /* if (.isEmpty()) {
-                Text("No students found.", modifier = Modifier.padding(16.dp))
-            } else {*/
-//
-//                /*}*/
-//            }
             }
         }
     }

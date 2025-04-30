@@ -17,6 +17,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -55,6 +56,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -84,7 +86,6 @@ class AddTeachersActivity : ComponentActivity() {
 
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
 @Composable
 fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modifier: Modifier = Modifier.verticalScroll(rememberScrollState())) {
     val context= LocalContext.current
@@ -187,6 +188,7 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modi
                         )
                     }
                 }
+
                 Column(modifier=Modifier.padding(horizontal = 10.dp)) {
 
                 UserInputField("Full Name",name,Icons.Default.Person,KeyboardType.Text, enabled = isEditable)
@@ -231,6 +233,7 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modi
 
                 UserInputField("Unique Code",uniqueCode,Icons.Outlined.Lock,KeyboardType.Text, enabled = isEditable)
                 }
+                Spacer(Modifier.height(10.dp))
                 Row(
                     Modifier
                         .fillMaxWidth()
@@ -238,7 +241,6 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modi
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-
 
                   if(isEditable)  {
                         ElevatedButton(
@@ -264,18 +266,15 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modi
                                     (context as Activity).finish()
                                 } else {
                                     viewModel.registerTeacher(teacher)
-                                    Toast.makeText(context, "Teacher Added.", Toast.LENGTH_SHORT)
-                                        .show()
+                                    Toast.makeText(context, "Teacher Added.", Toast.LENGTH_SHORT).show()
                                     clearFields(
                                         name, email, fatherName, motherName,
                                         phone, dob, subject, uniqueCode, gender,
                                         selectedImageUri
                                     )
                                     isSubmitted.value = "Add other"
+                                    (context as Activity).finish()
                                 }
-
-                                (context as Activity).finish()
-
                             },
                             enabled = isFormValid,
                             modifier = Modifier.fillMaxWidth()
@@ -287,7 +286,10 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modi
                                 modifier = Modifier.padding(5.dp)
                             )
                         }
-                    }
+                    }else{
+                        Text("Please contact admin to edit your profile.", color = Color.Red, fontSize = 18.sp, modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp,
+                            5.dp))
+                  }
                 }
             }
         }
@@ -303,4 +305,3 @@ fun isEmailValid(email: String): Boolean {
     val emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$"
     return email.matches(emailRegex.toRegex())
 }
-

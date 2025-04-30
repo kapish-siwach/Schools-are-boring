@@ -4,4 +4,5 @@ plugins {
     alias(libs.plugins.kotlin.android) apply false
     kotlin("kapt") version "1.9.24" apply false
     id("com.android.library") version "7.4.2" apply false
+//    alias(libs.plugins.kotlin.compose) apply false
 }

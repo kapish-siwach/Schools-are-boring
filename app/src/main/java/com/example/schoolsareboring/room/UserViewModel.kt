@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.schoolsareboring.models.StudentData
+import com.example.schoolsareboring.models.SyllabusModal
 import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.models.UserData
 import kotlinx.coroutines.Dispatchers
@@ -77,6 +78,9 @@ class UserViewModel(application: Application):AndroidViewModel(application) {
         }
     }
 
+    fun deleteStudent(studentData: StudentData)=viewModelScope.launch {
+        repository.deleteStudent(studentData)
+    }
 
 //    Teachers
 
@@ -102,4 +106,13 @@ class UserViewModel(application: Application):AndroidViewModel(application) {
             }
         }
     }
+
+//    Syllabus
+
+    fun insertSyllabus(syllabusModal: SyllabusModal){
+        viewModelScope.launch {
+            repository.insertSyllabus(syllabusModal)
+        }
+    }
+    val getAllSyllabus:Flow<List<SyllabusModal>> = repository.getAllSyllabus()
 }

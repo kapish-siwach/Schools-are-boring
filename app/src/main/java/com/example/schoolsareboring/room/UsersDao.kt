@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.schoolsareboring.models.StudentData
+import com.example.schoolsareboring.models.SyllabusModal
 import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.models.UserData
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +42,9 @@ interface UsersDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertStudent(studentData: StudentData)
 
+    @Delete
+    suspend fun deleteStudent(student: StudentData)
+
     @Query("SELECT * FROM students_table WHERE clazz = :clazz AND rollNo = :rollNo")
     suspend fun getStudentByRollNo(clazz: String, rollNo: String): StudentData?
 
@@ -63,4 +67,12 @@ interface UsersDao {
 
     @Query("SELECT * FROM teachers_table WHERE email = :email AND uniqueCode = :code ")
     suspend fun checkTeacherCredentials(email: String,code: String): TeachersData?
+
+//    Syllabus
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSyllabus(syllabusModal: SyllabusModal)
+
+    @Query("SELECT * FROM syllabus_table")
+    fun getAllSyllabus(): Flow<List<SyllabusModal>>
 }

@@ -11,8 +11,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -23,7 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -32,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.models.StudentData
@@ -163,17 +169,15 @@ fun StudentsScreen() {
 fun StudentCard(student: StudentData) {
     val context= LocalContext.current
     val imageUri = student.imageUri?.let { Uri.parse(it) }
+    val userViewModel:UserViewModel= viewModel()
+    val preferenceManager=PreferenceManager(context)
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        onClick = { val intent = Intent(context, AddStudentActivity::class.java).apply {
-                putExtra("studentData", student)
-            }
-            context.startActivity(intent)
-        }
+        elevation = CardDefaults.cardElevation(2.dp),
+        onClick = {}
     ) {
 
 
@@ -183,7 +187,7 @@ fun StudentCard(student: StudentData) {
             AsyncImage(
                 model = imageUri,
                 contentDescription = "Student Image",
-                modifier = Modifier.weight(0.5f).padding(5.dp).shadow(2.dp),
+                modifier = Modifier.weight(0.5f).padding(5.dp),
                 contentScale = ContentScale.Crop,
                 alignment = Alignment.Center
             )
@@ -194,15 +198,31 @@ fun StudentCard(student: StudentData) {
                 LabelWithValue(label = "Class", value = student.clazz)
                 LabelWithValue(label = "Roll No", value = student.rollNo)
                 LabelWithValue(label = "Father's Name", value = student.fatherName)
-//            LabelWithValue(label = "M other's Name", value = student.motherName)
                 LabelWithValue(label = "Phone", value = student.phone)
-//            LabelWithValue(label = "Email", value = student.email)
-//                LabelWithValue(label = "Gender", value = student.gender)
-//            LabelWithValue(label = "Date of Birth", value = student.dob)
+            }
+
+            Column(Modifier.padding(5.dp).fillMaxHeight(), verticalArrangement = Arrangement.Center) {
+                IconButton(onClick = {val intent = Intent(context, AddStudentActivity::class.java).apply {
+                    putExtra("studentData", student)
+                }
+                    context.startActivity(intent)}, modifier = Modifier.padding(vertical = 10.dp)) {
+                    Icon(Icons.Default.Edit, contentDescription = "Edit",Modifier.size(30.dp))
+                }
+                if (preferenceManager.getData("userType")=="admin") {
+                    IconButton(
+                        onClick = { userViewModel.deleteStudent(student) },
+                        modifier = Modifier.padding(vertical = 10.dp),
+                        colors = IconButtonDefaults.iconButtonColors(contentColor = Color.Red)
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            Modifier.size(30.dp)
+                        )
+                    }
+                }
             }
         }
-
-
     }
 }
 

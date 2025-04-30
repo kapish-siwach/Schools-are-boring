@@ -9,4 +9,6 @@
     <string name="title_activity_teachers">Teachers</string>
     <string name="title_activity_add_teachers">AddTeachersActivity</string>
     <string name="title_activity_teacher_login">TeacherLogin</string>
+    <string name="title_activity_syllabus">Syllabus</string>
+    <string name="title_activity_add_syllabus">AddSyllabus</string>
 </resources>
