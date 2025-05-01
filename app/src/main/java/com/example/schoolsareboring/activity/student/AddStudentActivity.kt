@@ -600,7 +600,7 @@ fun ClassDropdownPicker(selectedClass: String, onClassSelected: (String) -> Unit
             value = selectedClass,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Class *") },
+            label = { Text("Subject *") },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded)
             },

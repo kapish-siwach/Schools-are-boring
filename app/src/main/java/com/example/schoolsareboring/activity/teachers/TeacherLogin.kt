@@ -20,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.ButtonDefaults
@@ -51,6 +52,7 @@ import com.example.schoolsareboring.activity.MainActivity
 import com.example.schoolsareboring.activity.clearEntries
 import com.example.schoolsareboring.activity.student.UserInputField
 import com.example.schoolsareboring.activity.teachers.ui.theme.SchoolsAreBoringTheme
+import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.room.UserViewModel
 
 class TeacherLogin : ComponentActivity() {
@@ -76,7 +78,7 @@ fun TeacherLoginScreen( modifier: Modifier = Modifier) {
     val teacherCode= remember { mutableStateOf("") }
     val teacherEmail = remember { mutableStateOf("") }
     val preferenceManager = remember { PreferenceManager(context) }
-    val viewModel: UserViewModel = viewModel()
+    val viewModel: FirestoreViewModel = viewModel()
     val errorMsg = remember { mutableStateOf("") }
 
     Column(Modifier.fillMaxWidth().imePadding()
@@ -84,7 +86,7 @@ fun TeacherLoginScreen( modifier: Modifier = Modifier) {
     ) {
         IconButton(onClick = {(context as Activity).finish() },
             modifier = Modifier.padding(top=10.dp,start=13.dp).clip(CircleShape)) {
-            Icon(painter = painterResource(id= R.drawable.back_arrow),
+            Icon(Icons.AutoMirrored.Default.KeyboardArrowLeft,
                 contentDescription = "Back",
             )
         }
@@ -131,7 +133,7 @@ fun TeacherLoginScreen( modifier: Modifier = Modifier) {
                 if (teacherEmail.value.isEmpty() || teacherCode.value.isEmpty()) {
                     errorMsg.value = "All fields are required!!"
                 } else {
-                    viewModel.checkTeacherCredential(teacherEmail.value, teacherCode.value) { teacher ->
+                    viewModel.getTeacherByEmailCode(email = teacherEmail.value, code = teacherCode.value) { teacher ->
                         if (teacher!=null) {
                             errorMsg.value = ""
                             preferenceManager.setLoggedIn(true)

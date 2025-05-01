@@ -23,21 +23,30 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -46,6 +55,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,11 +72,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.schoolsareboring.R
+import com.example.schoolsareboring.activity.student.ClassDropdownPicker
 import com.example.schoolsareboring.activity.student.DOBDatePicker
 import com.example.schoolsareboring.activity.student.GenderRadioButtons
 import com.example.schoolsareboring.activity.student.UserInputField
 import com.example.schoolsareboring.activity.student.clearFields
 import com.example.schoolsareboring.activity.teachers.ui.theme.SchoolsAreBoringTheme
+import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.room.UserViewModel
 
@@ -76,9 +88,10 @@ class AddTeachersActivity : ComponentActivity() {
         enableEdgeToEdge()
         val teacherData = intent.getSerializableExtra("TeacherData") as? TeachersData
         val isEditable = intent.getBooleanExtra("nonEditable",true)
+        val firstUser = intent.getBooleanExtra("firstTimeUser",false)
         setContent {
             SchoolsAreBoringTheme {
-                    AddTeachersScreen(teacherData,isEditable)
+                    AddTeachersScreen(teacherData,isEditable,firstUser)
                 }
             }
         }
@@ -87,28 +100,35 @@ class AddTeachersActivity : ComponentActivity() {
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modifier: Modifier = Modifier.verticalScroll(rememberScrollState())) {
-    val context= LocalContext.current
-    val name = remember { mutableStateOf(teachersData?.name?: "") }
-    val email = remember { mutableStateOf( teachersData?.email?:"") }
-    val fatherName = remember { mutableStateOf( teachersData?.fatherName?:"") }
-    val motherName = remember { mutableStateOf( teachersData?.motherName?:"") }
-    val dob = remember { mutableStateOf( teachersData?.dob?:"") }
-    val phone = remember { mutableStateOf(teachersData?.phone?: "") }
-    val gender = remember { mutableStateOf( teachersData?.gender?:"") }
-    val subject = remember { mutableStateOf( teachersData?.subject?:"") }
-    val uniqueCode = remember { mutableStateOf( teachersData?.uniqueCode?:"") }
+fun AddTeachersScreen(
+    teachersData: TeachersData? = null,
+    isEditable: Boolean,
+    firstTimeUser: Boolean,
+    modifier: Modifier = Modifier.verticalScroll(rememberScrollState())
+) {
+    val context = LocalContext.current
+    val viewModel: FirestoreViewModel = viewModel()
+
+    // Use isLoading from the ViewModel
+    val isLoading by remember { mutableStateOf(viewModel.isLoading) }
+
+    val name = remember { mutableStateOf(teachersData?.name ?: "") }
+    val email = remember { mutableStateOf(teachersData?.email ?: "") }
+    val fatherName = remember { mutableStateOf(teachersData?.fatherName ?: "") }
+    val motherName = remember { mutableStateOf(teachersData?.motherName ?: "") }
+    val dob = remember { mutableStateOf(teachersData?.dob ?: "") }
+    val phone = remember { mutableStateOf(teachersData?.phone ?: "") }
+    val gender = remember { mutableStateOf(teachersData?.gender ?: "") }
+    val subject = remember { mutableStateOf(teachersData?.subject ?: "") }
+    val uniqueCode = remember { mutableStateOf(teachersData?.uniqueCode ?: "") }
     val emailError = remember { mutableStateOf("") }
     val phoneError = remember { mutableStateOf("") }
-    val addImage =R.drawable.social
-    val viewModel: UserViewModel = viewModel()
 
     val selectedImageUri = remember { mutableStateOf(teachersData?.imageUri?.let { Uri.parse(it) }) }
 
     val isEditMode = teachersData != null
     val isSubmitted = remember { mutableStateOf(if (isEditMode) "Update" else "Submit") }
-    val title = remember { mutableStateOf(if(!isEditable) "Profile" else if (isEditMode) "Update Teacher Details" else "Add New Teacher") }
-
+    val title = remember { mutableStateOf(if (!isEditable) "Profile" else if (isEditMode) "Update Teacher Details" else "Add New Teacher") }
 
     val isFormValid by derivedStateOf {
         name.value.isNotBlank() &&
@@ -120,7 +140,7 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modi
                 emailError.value.isBlank() &&
                 phoneError.value.isBlank() &&
                 subject.value.isNotBlank() &&
-                uniqueCode.value.isNotBlank()&&
+                uniqueCode.value.isNotBlank() &&
                 selectedImageUri.value != null
     }
 
@@ -135,19 +155,18 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modi
             selectedImageUri.value = it
         }
     }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(title.value) },
                 navigationIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.back_arrow),
-                        contentDescription = "Back",
-                        modifier = Modifier
-                            .padding(start = 15.dp, end = 10.dp)
-                            .clip(CircleShape)
-                            .clickable { (context as Activity).finish() }
-                    )
+                    IconButton(onClick = { (context as Activity).finish() }) {
+                        Icon(
+                            Icons.AutoMirrored.Default.KeyboardArrowLeft,
+                            contentDescription = "Back",
+                        )
+                    }
                 }
             )
         }
@@ -159,9 +178,9 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modi
                 .imePadding()
                 .fillMaxSize()
         ) {
-            Column (modifier=Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 FilledIconButton(
-                    onClick = { if(isEditable) launcher.launch("image/*") },
+                    onClick = { if (isEditable) launcher.launch("image/*") },
                     modifier = Modifier
                         .width(100.dp)
                         .height(100.dp)
@@ -171,17 +190,16 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modi
                     if (selectedImageUri.value != null) {
                         AsyncImage(
                             model = selectedImageUri.value,
-                            contentDescription = "Selected Student Pic",
+                            contentDescription = "Selected Teacher Pic",
                             modifier = Modifier
                                 .width(100.dp)
                                 .height(100.dp),
                             contentScale = ContentScale.Crop
                         )
-
                     } else {
                         Image(
-                            painter = painterResource(id = addImage),
-                            contentDescription = "Add Student Pic",
+                            painter = painterResource(id = R.drawable.social),
+                            contentDescription = "Add Teacher Pic",
                             modifier = Modifier
                                 .width(100.dp)
                                 .height(100.dp)
@@ -189,51 +207,48 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modi
                     }
                 }
 
-                Column(modifier=Modifier.padding(horizontal = 10.dp)) {
-
-                UserInputField("Full Name",name,Icons.Default.Person,KeyboardType.Text, enabled = isEditable)
-
-                UserInputField("Father's Name",fatherName,Icons.Default.Person,KeyboardType.Text, enabled = isEditable)
-
-                UserInputField("Mother's Name",motherName,Icons.Default.Person,KeyboardType.Text, enabled = isEditable)
-
-                UserInputField("Phone",phone,Icons.Default.Phone,KeyboardType.Phone,enabled = isEditable,
-                    onValueChange = {
+                Column(modifier = Modifier.padding(horizontal = 10.dp)) {
+                    UserInputField("Full Name", name, Icons.Default.Person, KeyboardType.Text, enabled = isEditable)
+                    UserInputField("Father's Name", fatherName, Icons.Default.Person, KeyboardType.Text, enabled = isEditable)
+                    UserInputField("Mother's Name", motherName, Icons.Default.Person, KeyboardType.Text, enabled = isEditable)
+                    UserInputField("Phone", phone, Icons.Default.Phone, KeyboardType.Phone, enabled = isEditable, onValueChange = {
                         phone.value = it
                         phoneError.value = if (isPhoneValid(it)) "" else "Invalid phone number"
+                    })
+                    if (phoneError.value.isNotEmpty()) {
+                        Text(phoneError.value, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(start = 10.dp))
                     }
-                )
-                if (phoneError.value.isNotEmpty()) {
-                    Text(phoneError.value, color = MaterialTheme.colorScheme.error,modifier=Modifier.padding(start = 10.dp))
-                }
 
-                UserInputField("Email",email,Icons.Default.Email,KeyboardType.Email,enabled = isEditable,onValueChange = {
-                    email.value = it
-                    emailError.value = if (isEmailValid(it)) "" else "Invalid email format"
-                }
-                )
+                    UserInputField("Email", email, Icons.Default.Email, KeyboardType.Email, enabled = firstTimeUser, onValueChange = {
+                        email.value = it
+                        emailError.value = if (isEmailValid(it)) "" else "Invalid email format"
+                    })
+                    if (emailError.value.isNotEmpty()) {
+                        Text(emailError.value, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(start = 10.dp))
+                    }
 
-                if (emailError.value.isNotEmpty()) {
-                    Text(emailError.value, color = MaterialTheme.colorScheme.error,modifier=Modifier.padding(start = 10.dp))
-                }
+                    DOBDatePicker(
+                        dob = dob.value,
+                        onDateSelected = { dob.value = it },
+                        enabled = isEditable
+                    )
 
-                DOBDatePicker(
-                    dob = dob.value,
-                    onDateSelected = { dob.value = it },
-                    enabled = isEditable
-                )
+                    GenderRadioButtons(
+                        selectedGender = gender.value,
+                        onGenderSelected = { gender.value = it },
+                        enabled = isEditable
+                    )
 
-                GenderRadioButtons(
-                    selectedGender = gender.value,
-                    onGenderSelected = { gender.value = it },
-                    enabled = isEditable
-                )
+                    SubjectDropDown(
+                        selectedSub = subject.value,
+                        onSubSelected = { subject.value = it },
+                        enabled = isEditable
+                    )
 
-                UserInputField("Subject",subject,Icons.Outlined.Info,KeyboardType.Text, enabled = isEditable)
-
-                UserInputField("Unique Code",uniqueCode,Icons.Outlined.Lock,KeyboardType.Text, enabled = isEditable)
+                    UserInputField("Unique Code", uniqueCode, Icons.Outlined.Lock, KeyboardType.Text, enabled = isEditable)
                 }
                 Spacer(Modifier.height(10.dp))
+
                 Row(
                     Modifier
                         .fillMaxWidth()
@@ -241,12 +256,12 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modi
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
+                    if (isEditable) {
 
-                  if(isEditable)  {
                         ElevatedButton(
                             onClick = {
                                 val teacher = TeachersData(
-                                    regNo = teachersData?.regNo ?: 0,
+                                    id = email.value,
                                     name = name.value,
                                     fatherName = fatherName.value,
                                     motherName = motherName.value,
@@ -261,40 +276,115 @@ fun AddTeachersScreen(teachersData: TeachersData? =null ,isEditable:Boolean,modi
 
                                 if (isEditMode) {
                                     viewModel.updateTeacher(teacher)
-                                    Toast.makeText(context, "Teacher Updated.", Toast.LENGTH_SHORT)
-                                        .show()
+                                    Toast.makeText(context, "Teacher Updated.", Toast.LENGTH_SHORT).show()
                                     (context as Activity).finish()
                                 } else {
-                                    viewModel.registerTeacher(teacher)
+                                    viewModel.addTeacher(teacher)
                                     Toast.makeText(context, "Teacher Added.", Toast.LENGTH_SHORT).show()
                                     clearFields(
                                         name, email, fatherName, motherName,
                                         phone, dob, subject, uniqueCode, gender,
                                         selectedImageUri
                                     )
-                                    isSubmitted.value = "Add other"
+                                    isSubmitted.value = "Add another"
                                     (context as Activity).finish()
                                 }
                             },
-                            enabled = isFormValid,
+                            enabled = isFormValid && !isLoading,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(
-                                isSubmitted.value,
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 18.sp,
-                                modifier = Modifier.padding(5.dp)
-                            )
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                            } else {
+                                Text(
+                                    isSubmitted.value,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 18.sp,
+                                    modifier = Modifier.padding(5.dp)
+                                )
+                            }
                         }
-                    }else{
-                        Text("Please contact admin to edit your profile.", color = Color.Red, fontSize = 18.sp, modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp,
-                            5.dp))
-                  }
+                    } else {
+                        Text("Please contact admin to edit your profile.", color = Color.Red, fontSize = 18.sp, modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp, 5.dp))
+                    }
                 }
             }
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SubjectDropDown(selectedSub: String, onSubSelected: (String) -> Unit, enabled: Boolean) {
+        val classOptions = listOf(
+            "Hindi",
+            "English",
+            "Maths",
+            "Physics",
+            "Biology",
+            "Chemistry",
+            "Physical Education",
+            "Fine Arts",
+            "Music",
+            "History",
+            "Geography",
+            "Computer",
+            "Sanskrit",
+            "Economics",
+            "Political Science",
+        )
+        var expanded by remember { mutableStateOf(false) }
+
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { if (enabled) expanded = !expanded },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+
+            ) {
+            OutlinedTextField(
+                value = selectedSub,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Class *") },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded)
+                },
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth(),
+                enabled = enabled,
+                colors = OutlinedTextFieldDefaults.colors(
+                    disabledBorderColor = Color.DarkGray,
+                    disabledLabelColor = Color.DarkGray,
+                    disabledTextColor = Color.DarkGray
+                )
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                classOptions.forEach { className ->
+                    DropdownMenuItem(
+                        text = { Text(className) },
+                        onClick = {
+                            onSubSelected(className)
+                            expanded = false
+                        },
+                        enabled = enabled
+                    )
+                }
+            }
+        }
+    }
+
 
 fun isPhoneValid(phone: String): Boolean {
     val phoneRegex = "^[0-9]{10}$"

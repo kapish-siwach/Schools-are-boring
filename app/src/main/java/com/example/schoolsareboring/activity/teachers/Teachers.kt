@@ -37,6 +37,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -57,6 +58,7 @@ import com.example.schoolsareboring.activity.student.AddStudentActivity
 import com.example.schoolsareboring.activity.student.LabelWithValue
 import com.example.schoolsareboring.activity.student.StudentCard
 import com.example.schoolsareboring.activity.teachers.ui.theme.SchoolsAreBoringTheme
+import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.models.StudentData
 import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.room.UserViewModel
@@ -80,7 +82,7 @@ fun TeacherCard(teacher: TeachersData) {
     val context= LocalContext.current
     val imageUri = teacher.imageUri?.let { Uri.parse(it) }
     val preferenceManager =PreferenceManager(context)
-    val viewModel:UserViewModel= viewModel()
+    val viewModel:FirestoreViewModel= viewModel()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -117,7 +119,7 @@ fun TeacherCard(teacher: TeachersData) {
                 }
                 if (preferenceManager.getData("userType")=="admin") {
                     IconButton(
-                        onClick = { viewModel.deleteTeacher(teacher) },
+                        onClick = { viewModel.deleteTeacher(teacher.id) },
                         modifier = Modifier.padding(vertical = 10.dp),
                         colors = IconButtonDefaults.iconButtonColors(contentColor = Color.Red)
                     ) {
@@ -137,9 +139,12 @@ fun TeacherCard(teacher: TeachersData) {
 @Composable
 fun TeachersScreen() {
     val context = LocalContext.current
-    val viewModel: UserViewModel = viewModel()
-    val teachers by viewModel.allTeachers.collectAsState(initial = emptyList())
+    val viewModel: FirestoreViewModel = viewModel()
+    LaunchedEffect(Unit) {
+        viewModel.listenToTeachers()
+    }
 
+    val teachers = viewModel.allTeachers
     Scaffold(
         topBar = {
             TopAppBar(
@@ -147,15 +152,16 @@ fun TeachersScreen() {
                 navigationIcon = {
                     IconButton (onClick = { (context as? Activity)?.finish()}){
                        Icon( Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                           contentDescription = "Back",
-                           modifier = Modifier )
+                           contentDescription = "Back")
                     }
                 }
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                context.startActivity(Intent(context, AddTeachersActivity::class.java))
+                context.startActivity(Intent(context, AddTeachersActivity::class.java).apply {
+                    putExtra("firstTimeUser",true)
+                })
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Add New")
             }
