@@ -17,34 +17,34 @@ class UserViewModel(application: Application):AndroidViewModel(application) {
     private val dao = UserDatabase.getDatabase(application).userDao()
     private val repository = UserRepository(dao)
 
-
-    val allUsers: Flow<List<UserData>> = repository.getAllUsers()
-
-    fun registerUser(user: UserData) {
-        viewModelScope.launch {
-            repository.insertUser(user)
-        }
-    }
-
-    fun deleteUser(userData: UserData)=viewModelScope.launch {
-        repository.delete(userData)
-    }
-
-    fun checkUserCredentials(email: String, password: String, callback: (UserData?) -> Unit) {
-        viewModelScope.launch {
-            val user = repository.getUserByCredentials(email, password)
-            withContext(Dispatchers.Main) {
-                callback(user)
-            }
-        }
-    }
-
-    fun getUserByEmail(email: String, callback: (Boolean) -> Unit){
-        viewModelScope.launch {
-            val user=repository.getUserByEmail(email)
-            callback(user != null)
-        }
-    }
+//
+//    val allUsers: Flow<List<UserData>> = repository.getAllUsers()
+//
+//    fun registerUser(user: UserData) {
+//        viewModelScope.launch {
+//            repository.insertUser(user)
+//        }
+//    }
+//
+//    fun deleteUser(userData: UserData)=viewModelScope.launch {
+//        repository.delete(userData)
+//    }
+//
+//    fun checkUserCredentials(email: String, password: String, callback: (UserData?) -> Unit) {
+//        viewModelScope.launch {
+//            val user = repository.getUserByCredentials(email, password)
+//            withContext(Dispatchers.Main) {
+//                callback(user)
+//            }
+//        }
+//    }
+//
+//    fun getUserByEmail(email: String, callback: (Boolean) -> Unit){
+//        viewModelScope.launch {
+//            val user=repository.getUserByEmail(email)
+//            callback(user != null)
+//        }
+//    }
 
 //    Students
     val allStudents: Flow<List<StudentData>> = repository.getAllStudents()
@@ -68,7 +68,6 @@ class UserViewModel(application: Application):AndroidViewModel(application) {
             withContext(Dispatchers.Main){
                 callback(student)
             }
-
         }
     }
 
@@ -105,6 +104,10 @@ class UserViewModel(application: Application):AndroidViewModel(application) {
                 callback(teacher)
             }
         }
+    }
+
+    fun deleteTeacher(teachersData: TeachersData)=viewModelScope.launch {
+        repository.deleteTeacher(teachersData)
     }
 
 //    Syllabus

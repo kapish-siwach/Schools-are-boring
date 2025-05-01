@@ -10,22 +10,22 @@ import kotlinx.coroutines.flow.Flow
 class UserRepository(private val usersDao: UsersDao) {
 //    val allUsers:Flow<List<UserData>> = usersDao.getAllUsers()
 
-    suspend fun insertUser(userData: UserData){
-        usersDao.insert(userData)
-    }
-
-    suspend fun delete(userData: UserData){
-        usersDao.delete(userData)
-    }
-    fun getAllUsers(): Flow<List<UserData>> = usersDao.getAllUsers()
-
-    suspend fun getUserByCredentials(email: String, password: String): UserData? {
-        return usersDao.getUserByCredentials(email, password)
-    }
-
-    suspend fun getUserByEmail(email: String): UserData?{
-        return usersDao.getUserByEmail(email)
-    }
+//    suspend fun insertUser(userData: UserData){
+//        usersDao.insert(userData)
+//    }
+//
+//    suspend fun delete(userData: UserData){
+//        usersDao.delete(userData)
+//    }
+//    fun getAllUsers(): Flow<List<UserData>> = usersDao.getAllUsers()
+//
+//    suspend fun getUserByCredentials(email: String, password: String): UserData? {
+//        return usersDao.getUserByCredentials(email, password)
+//    }
+//
+//    suspend fun getUserByEmail(email: String): UserData?{
+//        return usersDao.getUserByEmail(email)
+//    }
 
 
 //    Students
@@ -59,6 +59,9 @@ class UserRepository(private val usersDao: UsersDao) {
         return usersDao.checkTeacherCredentials(email,code)
     }
 
+    suspend fun deleteTeacher(teachers: TeachersData){
+        usersDao.deleteTeacher(teachers)
+    }
     suspend fun insertTeacher(teachers: TeachersData){
         usersDao.insertTeacher(teachers)
     }

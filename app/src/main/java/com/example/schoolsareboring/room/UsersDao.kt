@@ -16,23 +16,23 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UsersDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertUser(user: UserData)
-
-    @Query("SELECT * FROM user_data")
-    fun getAllUsers(): Flow<List<UserData>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(userData: UserData)
-
-    @Delete
-    suspend fun delete(userData: UserData)
-
-    @Query("SELECT * FROM user_data WHERE email = :email AND password = :password")
-    suspend fun getUserByCredentials(email: String, password: String): UserData?
-
-    @Query("SELECT * FROM user_data WHERE email= :email")
-    suspend fun getUserByEmail(email: String): UserData?
+//    @Insert(onConflict = OnConflictStrategy.REPLACE)
+//    suspend fun insertUser(user: UserData)
+//
+//    @Query("SELECT * FROM user_data")
+//    fun getAllUsers(): Flow<List<UserData>>
+//
+//    @Insert(onConflict = OnConflictStrategy.REPLACE)
+//    suspend fun insert(userData: UserData)
+//
+//    @Delete
+//    suspend fun delete(userData: UserData)
+//
+//    @Query("SELECT * FROM user_data WHERE email = :email AND password = :password")
+//    suspend fun getUserByCredentials(email: String, password: String): UserData?
+//
+//    @Query("SELECT * FROM user_data WHERE email= :email")
+//    suspend fun getUserByEmail(email: String): UserData?
 
 //    Students
 
@@ -61,6 +61,9 @@ interface UsersDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTeacher(teachersData: TeachersData)
+
+    @Delete
+    suspend fun deleteTeacher(teachersData: TeachersData)
 
     @Update
     suspend fun updateTeacher(teachersData: TeachersData)

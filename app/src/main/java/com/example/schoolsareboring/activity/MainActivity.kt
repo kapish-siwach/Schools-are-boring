@@ -59,6 +59,7 @@ import coil.compose.AsyncImage
 import com.example.schoolsareboring.MainViewModel
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
+import com.example.schoolsareboring.activity.TimeTable.TimeTable
 import com.example.schoolsareboring.activity.student.AddStudentActivity
 import com.example.schoolsareboring.activity.student.Students
 import com.example.schoolsareboring.activity.syllabus.Syllabus
@@ -243,7 +244,7 @@ fun MainContent() {
                                 "teacher" -> context.startActivity(Intent(context, Teachers::class.java))
                                 "attendance" -> /*context.startActivity(Intent(context, AttendanceActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "syllabus" -> context.startActivity(Intent(context, Syllabus::class.java))
-                                "time_table" -> /*context.startActivity(Intent(context, TimeTableActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
+                                "time_table" -> context.startActivity(Intent(context, TimeTable::class.java))
                                 "assignments" -> /*context.startActivity(Intent(context, AssignmentsActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "exam" -> /*context.startActivity(Intent(context, ExamActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "result" -> /*context.startActivity(Intent(context, ResultsActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()

@@ -5,8 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -15,9 +17,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,9 +53,15 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.PreferenceManager
-import com.example.schoolsareboring.room.UserViewModel
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
+import com.example.schoolsareboring.firestore.FirestoreViewModel
+import com.example.schoolsareboring.firestore.handleGoogleSignInResult
 import com.example.schoolsareboring.models.UserData
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 
 class SignupActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,8 +81,7 @@ class SignupActivity : ComponentActivity() {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun Signup(modifier: Modifier = Modifier,
-           viewModel: UserViewModel = viewModel()) {
+fun Signup(modifier: Modifier = Modifier,firestoreVIewModal: FirestoreViewModel= viewModel()) {
     val context = LocalContext.current
     val name = remember { mutableStateOf("") }
     val email = remember { mutableStateOf("") }
@@ -82,7 +92,38 @@ fun Signup(modifier: Modifier = Modifier,
     var passwordVisible by remember { mutableStateOf(false) }
     var conPasswordVisible by remember { mutableStateOf(false) }
     val preferenceManager = remember { PreferenceManager(context) }
-    val viewModel: UserViewModel = viewModel()
+
+
+    val activity = context as Activity
+
+    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestIdToken(context.getString(R.string.default_web_client_id))
+        .requestEmail()
+        .build()
+
+    val googleSignInClient = GoogleSignIn.getClient(context, gso)
+
+// Google Sign-In Launcher
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        handleGoogleSignInResult(
+            result,
+            context,
+            firestoreVIewModal,
+            preferenceManager,
+            onSuccess = {
+                Toast.makeText(context, "Signed in successfully!", Toast.LENGTH_SHORT).show()
+                context.startActivity(Intent(context, MainActivity::class.java))
+            },
+            onFailure = {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+
+
 
     Column(
         modifier = Modifier
@@ -91,9 +132,10 @@ fun Signup(modifier: Modifier = Modifier,
             .imePadding()
             .verticalScroll(rememberScrollState())
     ) {
-        IconButton(onClick = {(context as Activity).finish() },
+        IconButton(onClick = { context.finish() },
             modifier = Modifier.padding(top=6.dp,start=3.dp).clip(CircleShape)) {
-            Icon(painter = painterResource(id=R.drawable.back_arrow),
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                 contentDescription = "Back",
                 )
         }
@@ -226,31 +268,39 @@ fun Signup(modifier: Modifier = Modifier,
 
             ElevatedButton(
                 onClick = {
-                    if (name.value.isEmpty() || email.value.isEmpty() || password.value.isEmpty() || confmPassword.value.isEmpty()) {
+                    if (name.value.isBlank() || email.value.isBlank() || password.value.isBlank() || confmPassword.value.isBlank()) {
                         errorMsg.value = "All fields are required!!"
-                    }else if (passwordError.value.trim().isNotEmpty())
-                        errorMsg.value = ""
-                    else {
-                        viewModel.getUserByEmail(email.value) { emailExists ->
+                    } else if (passwordError.value.trim().isNotEmpty()) {
+                        errorMsg.value = passwordError.value
+                    } else {
+                        firestoreVIewModal.checkAdminEmailExists(email.value) { emailExists ->
                             if (emailExists) {
                                 errorMsg.value = "Email already exists!"
                             } else {
-                                errorMsg.value = ""
-                                storeData(name, email, password, confmPassword, preferenceManager, viewModel)
-                                preferenceManager.saveData("name",name.value)
-                                preferenceManager.saveData("userType","admin")
+                                val user = UserData(
+                                    id = email.value,
+                                    name = name.value,
+                                    email = email.value,
+                                    password = password.value,
+                                    role = "admin"
+                                )
+                                firestoreVIewModal.addAdmin(user)
+                                preferenceManager.setLoggedIn(true)
+                                preferenceManager.saveData("name", name.value)
+                                preferenceManager.saveData("email", email.value)
+                                preferenceManager.saveData("userType", "admin")
                                 context.startActivity(Intent(context, MainActivity::class.java))
                                 clearEntries(name, email, password, confmPassword)
                             }
                         }
-
                     }
-                }, modifier = Modifier.fillMaxWidth().padding(top=10.dp, end = 10.dp,start=10.dp),
+                }
+                , modifier = Modifier.fillMaxWidth().padding(top=10.dp, end = 10.dp,start=10.dp),
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = Color.Blue,
                     contentColor = Color.White
                 )
-                
+
             ) {
                 Text("Sign up", textAlign = TextAlign.Center, fontSize = 16.sp)
             }
@@ -268,11 +318,15 @@ fun Signup(modifier: Modifier = Modifier,
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            TextButton(onClick = {Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()},
+            val googlePresses= remember { mutableStateOf(false) }
+            TextButton(onClick = {
+                googlePresses.value=true
+                val signInIntent = googleSignInClient.signInIntent
+                launcher.launch(signInIntent)},
                 border = BorderStroke(2.dp,Color.DarkGray),
                 modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp)
             ) {
-                Row {
+                Row(modifier=Modifier, verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         painter = painterResource(id = R.drawable.google),
                         contentDescription = "Google logo",
@@ -280,7 +334,11 @@ fun Signup(modifier: Modifier = Modifier,
                             .padding(5.dp)
                             .size(24.dp)
                     )
+                    if (googlePresses.value){
+                        CircularProgressIndicator(modifier.size(24.dp))
+                    } else{
                 Text("Sign up with Google", textAlign = TextAlign.Center, modifier = Modifier.padding(5.dp))
+                        }
                 }
             }
             TextButton(onClick = {
@@ -293,27 +351,6 @@ fun Signup(modifier: Modifier = Modifier,
         }
 
     }
-}
-
-fun storeData(
-    name: MutableState<String>,
-    email: MutableState<String>,
-    password: MutableState<String>,
-    confmPassword: MutableState<String>,
-    preferenceManager: PreferenceManager,
-    viewModel: UserViewModel
-) {
-    preferenceManager.saveData("name",name.value)
-    preferenceManager.saveData("email",email.value)
-    preferenceManager.saveData("userType","admin")
-    preferenceManager.setLoggedIn(true)
-    val user = UserData(
-        name = name.value,
-        email = email.value,
-        password = password.value,
-    )
-
-    viewModel.registerUser(user)
 }
 
 fun clearEntries(

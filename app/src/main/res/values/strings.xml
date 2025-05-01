@@ -11,4 +11,6 @@
     <string name="title_activity_teacher_login">TeacherLogin</string>
     <string name="title_activity_syllabus">Syllabus</string>
     <string name="title_activity_add_syllabus">AddSyllabus</string>
+    <string name="title_activity_time_table">TimeTable</string>
+    <string name="default_web_client_id">701222988606-3iu4jlsu8ot6ib7k4i8eg98hp0c7sp5g.apps.googleusercontent.com</string>
 </resources>

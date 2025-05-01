@@ -1,23 +1,29 @@
 package com.example.schoolsareboring.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -34,6 +40,10 @@ import com.example.schoolsareboring.R
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.room.UserViewModel
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
+import com.example.schoolsareboring.firestore.FirestoreViewModel
+import com.example.schoolsareboring.firestore.handleGoogleSignInResult
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,14 +61,42 @@ class LoginActivity : ComponentActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
+fun LoginScreen(
+    modifier: Modifier = Modifier,
+    firestoreViewModel: FirestoreViewModel = viewModel()
+) {
     val context = LocalContext.current
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val errorMsg = remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     val preferenceManager = remember { PreferenceManager(context) }
-    val viewModel: UserViewModel = viewModel()
+    val activity = context as Activity
+    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestIdToken(context.getString(R.string.default_web_client_id))
+        .requestEmail()
+        .build()
+    val googleSignInClient = GoogleSignIn.getClient(context, gso)
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        handleGoogleSignInResult(
+            result,
+            context,
+            firestoreViewModel,
+            preferenceManager,
+            onSuccess = {
+                Toast.makeText(context, "Signed in successfully!", Toast.LENGTH_SHORT).show()
+                context.startActivity(Intent(context, MainActivity::class.java))
+            },
+            onFailure = {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+
     Column(
         modifier = Modifier
             .padding(top = 20.dp, start = 5.dp, end = 5.dp)
@@ -66,9 +104,20 @@ fun LoginScreen(modifier: Modifier = Modifier) {
             .imePadding()
             .verticalScroll(rememberScrollState())
     ) {
-        Column(
+        IconButton(
+            onClick = { (context as Activity).finish() },
             modifier = Modifier
-                .padding(top = 15.dp, start = 8.dp)
+                .padding(top = 6.dp, start = 3.dp)
+                .clip(CircleShape)
+        ) {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                contentDescription = "Back",
+            )
+        }
+
+        Column(
+            modifier = Modifier.padding(top = 15.dp, start = 8.dp)
         ) {
             Text(
                 text = "Log in",
@@ -114,7 +163,10 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                     else R.drawable.baseline_visibility_off_24
                     val description = if (passwordVisible) "Hide password" else "Show password"
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(painter = painterResource(id = image), contentDescription = description)
+                        Icon(
+                            painter = painterResource(id = image),
+                            contentDescription = description
+                        )
                     }
                 },
                 modifier = Modifier
@@ -131,26 +183,27 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 )
             }
 
-
             ElevatedButton(
                 onClick = {
                     if (email.value.isEmpty() || password.value.isEmpty()) {
-                        errorMsg.value = "All fields are required!!"
+                        errorMsg.value = "All fields are required!"
                     } else {
-                        viewModel.checkUserCredentials(email.value, password.value) { admin ->
-                            if (admin!=null) {
+                        firestoreViewModel.getAdminByEmailAndPassword(
+                            email = email.value,
+                            password = password.value
+                        ) { user ->
+                            if (user != null) {
                                 errorMsg.value = ""
                                 preferenceManager.setLoggedIn(true)
-                                preferenceManager.saveData("name",admin.name)
-                                preferenceManager.saveData("userType","admin")
-                                preferenceManager.saveUserData("userData",admin)
+                                preferenceManager.saveData("name", user.name ?: "")
+                                preferenceManager.saveData("email", user.email ?: "")
+                                preferenceManager.saveData("userType", user.role ?: "admin")
                                 context.startActivity(Intent(context, MainActivity::class.java))
                                 clearEntries(email, password)
                             } else {
                                 errorMsg.value = "Invalid email or password!"
                             }
                         }
-
                     }
                 },
                 modifier = Modifier
@@ -178,7 +231,10 @@ fun LoginScreen(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(10.dp))
 
             TextButton(
-                onClick = { Toast.makeText(context, "Coming soon!!", Toast.LENGTH_SHORT).show() },
+                onClick = {
+                    val signInIntent = googleSignInClient.signInIntent
+                    launcher.launch(signInIntent)
+                },
                 border = BorderStroke(2.dp, Color.DarkGray),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -192,7 +248,11 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                             .padding(5.dp)
                             .size(24.dp)
                     )
-                    Text("Sign up with Google", textAlign = TextAlign.Center, modifier = Modifier.padding(5.dp))
+                    Text(
+                        "Sign up with Google",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(5.dp)
+                    )
                 }
             }
 
@@ -200,35 +260,15 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 context.startActivity(Intent(context, UsertypeActivity::class.java))
             }) {
                 Row {
-                    Text("Want to change user type?" ,color = Color.Blue)
+                    Text("Want to change user type?", color = Color.Blue)
                 }
             }
         }
     }
 }
 
-
-fun checkUserInput(
-    email: MutableState<String>,
-    password: MutableState<String>,
-    preferenceManager: PreferenceManager,
-    errorMsg: MutableState<String>
-): Boolean {
-    val savedEmail = preferenceManager.getData("email")
-    val savedPassword = preferenceManager.getData("password")
-
-    return if (email.value.trim() != savedEmail) {
-        errorMsg.value = "Email not found!!"
-        false
-    } else if (password.value.trim() != savedPassword) {
-        errorMsg.value = "Incorrect password!!"
-        false
-    } else {
-        true
+    fun clearEntries(email: MutableState<String>, password: MutableState<String>) {
+        email.value = ""
+        password.value = ""
     }
-}
 
-fun clearEntries(email: MutableState<String>, password: MutableState<String>) {
-    email.value = ""
-    password.value = ""
-}

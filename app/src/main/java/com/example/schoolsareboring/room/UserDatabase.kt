@@ -9,7 +9,7 @@ import com.example.schoolsareboring.models.SyllabusModal
 import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.models.UserData
 
-@Database(entities = [UserData::class,StudentData::class,TeachersData::class,SyllabusModal::class], version = 6)
+@Database(entities = [StudentData::class,TeachersData::class,SyllabusModal::class], version = 7)
 abstract class UserDatabase :RoomDatabase() {
     abstract fun userDao(): UsersDao
 
