@@ -3,6 +3,7 @@ package com.example.schoolsareboring.firestore
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
+import com.example.schoolsareboring.models.StudentData
 import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.models.UserData
 import com.google.firebase.firestore.FirebaseFirestore
@@ -16,9 +17,15 @@ class FirestoreViewModel : ViewModel() {
 
     var teachers by mutableStateOf<List<TeachersData>>(emptyList())
         private set
-
     private val _teachers = mutableStateListOf<TeachersData>()
     val allTeachers: List<TeachersData> get() = _teachers
+
+    var students by mutableStateOf<List<StudentData>>(emptyList())
+        private set
+    private val _students= mutableStateListOf<StudentData>()
+    val allStudents:List<StudentData> get() = _students
+
+
 
     var isLoading by mutableStateOf(false)
         private set
@@ -227,5 +234,49 @@ class FirestoreViewModel : ViewModel() {
             }
     }
 
+
+
+//    Fetch Students
+
+        fun listenToStudents() {
+            isLoading = true
+            errorMessage = null
+
+            // Real-time updates using snapshot listener
+            db.collection("students")
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        Log.e("Firestore", "Listen failed.", error)
+                        errorMessage = error.message
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null) {
+                        val list = snapshot.documents.mapNotNull { it.toObject(StudentData::class.java) }
+                        students = list
+                        _students.clear()
+                        _students.addAll(list)
+                    }
+                }
+        }
+
+    fun addStudent(student: StudentData) {
+        isLoading = true
+        errorMessage = null
+
+        db.collection("teachers")
+            .document((student.regNo ?: "").toString())
+            .set(student)
+            .addOnSuccessListener {
+                Log.d("Firestore", "Teacher added")
+            }
+            .addOnFailureListener {
+                Log.e("Firestore", "Error adding Teacher", it)
+                errorMessage = it.message
+            }
+            .addOnCompleteListener {
+                isLoading = false
+            }
+    }
 
 }
