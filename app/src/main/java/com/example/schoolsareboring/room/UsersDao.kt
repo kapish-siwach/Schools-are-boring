@@ -56,20 +56,20 @@ interface UsersDao {
 
 //      Teachers
 
-    @Query("SELECT * FROM teachers_table")
-    fun getAllTeachers(): Flow<List<TeachersData>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTeacher(teachersData: TeachersData)
-
-    @Delete
-    suspend fun deleteTeacher(teachersData: TeachersData)
-
-    @Update
-    suspend fun updateTeacher(teachersData: TeachersData)
-
-    @Query("SELECT * FROM teachers_table WHERE email = :email AND uniqueCode = :code ")
-    suspend fun checkTeacherCredentials(email: String,code: String): TeachersData?
+//    @Query("SELECT * FROM teachers_table")
+//    fun getAllTeachers(): Flow<List<TeachersData>>
+//
+//    @Insert(onConflict = OnConflictStrategy.REPLACE)
+//    suspend fun insertTeacher(teachersData: TeachersData)
+//
+//    @Delete
+//    suspend fun deleteTeacher(teachersData: TeachersData)
+//
+//    @Update
+//    suspend fun updateTeacher(teachersData: TeachersData)
+//
+//    @Query("SELECT * FROM teachers_table WHERE email = :email AND uniqueCode = :code ")
+//    suspend fun checkTeacherCredentials(email: String,code: String): TeachersData?
 
 //    Syllabus
 

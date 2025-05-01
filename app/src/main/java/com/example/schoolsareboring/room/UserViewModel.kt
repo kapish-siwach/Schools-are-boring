@@ -83,32 +83,32 @@ class UserViewModel(application: Application):AndroidViewModel(application) {
 
 //    Teachers
 
-    val allTeachers: Flow<List<TeachersData>> = repository.getAllTeachers()
-
-   fun registerTeacher(teachersData: TeachersData) {
-       viewModelScope.launch {
-           repository.insertTeacher(teachersData)
-       }
-   }
-
-    fun updateTeacher(updatedTeacher: TeachersData){
-        viewModelScope.launch {
-            repository.updateTeacher(updatedTeacher)
-        }
-    }
-
-    fun checkTeacherCredential(email:String,code:String,callback: (TeachersData?) -> Unit){
-        viewModelScope.launch {
-           val teacher = repository.checkTeacherCredentials(email,code)
-            withContext(Dispatchers.Main) {
-                callback(teacher)
-            }
-        }
-    }
-
-    fun deleteTeacher(teachersData: TeachersData)=viewModelScope.launch {
-        repository.deleteTeacher(teachersData)
-    }
+//    val allTeachers: Flow<List<TeachersData>> = repository.getAllTeachers()
+//
+//   fun registerTeacher(teachersData: TeachersData) {
+//       viewModelScope.launch {
+//           repository.insertTeacher(teachersData)
+//       }
+//   }
+//
+//    fun updateTeacher(updatedTeacher: TeachersData){
+//        viewModelScope.launch {
+//            repository.updateTeacher(updatedTeacher)
+//        }
+//    }
+//
+//    fun checkTeacherCredential(email:String,code:String,callback: (TeachersData?) -> Unit){
+//        viewModelScope.launch {
+//           val teacher = repository.checkTeacherCredentials(email,code)
+//            withContext(Dispatchers.Main) {
+//                callback(teacher)
+//            }
+//        }
+//    }
+//
+//    fun deleteTeacher(teachersData: TeachersData)=viewModelScope.launch {
+//        repository.deleteTeacher(teachersData)
+//    }
 
 //    Syllabus
 

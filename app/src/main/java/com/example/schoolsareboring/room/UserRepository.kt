@@ -53,22 +53,22 @@ class UserRepository(private val usersDao: UsersDao) {
 
 //    Teachers
 
-    fun getAllTeachers():Flow<List<TeachersData>> = usersDao.getAllTeachers()
-
-    suspend fun checkTeacherCredentials(email:String,code:String):TeachersData?{
-        return usersDao.checkTeacherCredentials(email,code)
-    }
-
-    suspend fun deleteTeacher(teachers: TeachersData){
-        usersDao.deleteTeacher(teachers)
-    }
-    suspend fun insertTeacher(teachers: TeachersData){
-        usersDao.insertTeacher(teachers)
-    }
-
-    suspend fun updateTeacher(teachers: TeachersData){
-        usersDao.updateTeacher(teachers)
-    }
+//    fun getAllTeachers():Flow<List<TeachersData>> = usersDao.getAllTeachers()
+//
+//    suspend fun checkTeacherCredentials(email:String,code:String):TeachersData?{
+//        return usersDao.checkTeacherCredentials(email,code)
+//    }
+//
+//    suspend fun deleteTeacher(teachers: TeachersData){
+//        usersDao.deleteTeacher(teachers)
+//    }
+//    suspend fun insertTeacher(teachers: TeachersData){
+//        usersDao.insertTeacher(teachers)
+//    }
+//
+//    suspend fun updateTeacher(teachers: TeachersData){
+//        usersDao.updateTeacher(teachers)
+//    }
 
 //  Syllabus
     suspend fun insertSyllabus(syllabusModal: SyllabusModal){

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "701222988606",
+    "project_id": "schools-are-boring",
+    "storage_bucket": "schools-are-boring.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:701222988606:android:d4254332306a745d99da6f",
+        "android_client_info": {
+          "package_name": "com.example.schoolsareboring"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCO6hG4dJjWOALOJQk6B-_ha8a9N-Ia7tk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
