@@ -212,6 +212,7 @@ fun MainContent() {
     val allItems = listOf(
         HomeContent(R.drawable.student, "Students", "students"),
         HomeContent(R.drawable.teacher, "Teachers", "teacher"),
+        HomeContent(R.drawable.bot, "My AI", "myai"),
         HomeContent(R.drawable.attendence, "Attendance", "attendance"),
         HomeContent(R.drawable.syllabus, "Syllabus", "syllabus"),
         HomeContent(R.drawable.time_table, "Time Table", "time_table"),
@@ -224,8 +225,8 @@ fun MainContent() {
     )
 
     // Define what a student can see
-    val studentVisibleRoutes = listOf("attendance", "syllabus", "time_table", "assignments", "exam", "result", "fees", "events", "inbox")
-    val teacherVisibleRoutes = listOf("students","attendance", "syllabus", "time_table", "assignments", "exam", "result", "fees", "events", "inbox")
+    val studentVisibleRoutes = listOf("attendance","myai", "syllabus", "time_table", "assignments", "exam", "result", "fees", "events", "inbox")
+    val teacherVisibleRoutes = listOf("students","myai", "attendance", "syllabus", "time_table", "assignments", "exam", "result", "fees", "events", "inbox")
 
     // Filter list based on userType
     val screenItems = if (userType.lowercase() == "student") {
@@ -256,6 +257,7 @@ fun MainContent() {
                             when (item.route) {
                                 "students" -> context.startActivity(Intent(context, Students::class.java))
                                 "teacher" -> context.startActivity(Intent(context, Teachers::class.java))
+                                "myai" -> /*context.startActivity(Intent(context, Teachers::class.java))*/  Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "attendance" -> /*context.startActivity(Intent(context, AttendanceActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "syllabus" -> context.startActivity(Intent(context, Syllabus::class.java))
                                 "time_table" -> context.startActivity(Intent(context, TimeTable::class.java))

@@ -311,4 +311,18 @@ class FirestoreViewModel : ViewModel() {
             }
     }
 
+    fun checkStudentCredentials(email: String, phone: String, callback: (TeachersData?) -> Unit) {
+        db.collection("students")
+            .whereEqualTo("email", email)
+            .whereEqualTo("phone", phone)
+            .get()
+            .addOnSuccessListener { result ->
+                val teacher = result.documents.firstOrNull()?.toObject(TeachersData::class.java)
+                callback(teacher)
+            }
+            .addOnFailureListener {
+                Log.e("Firestore", "Login error", it)
+                callback(null)
+            }
+    }
 }

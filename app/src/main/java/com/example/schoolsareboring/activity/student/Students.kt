@@ -191,7 +191,7 @@ fun StudentCard(student: StudentData) {
 
         Row(modifier = Modifier
             .padding(5.dp)
-            .shadow(2.dp)
+//            .shadow(2.dp)
             .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
                 model = imageUri,
@@ -204,10 +204,10 @@ fun StudentCard(student: StudentData) {
             )
 
             Column(modifier = Modifier
-                .padding(16.dp)
+                .padding(6.dp)
                 .weight(1f)) {
                 LabelWithValue(label = "Name", value = student.name)
-                LabelWithValue(label = "Reg. No", value = student.regNo.toString())
+                LabelWithValue(label = "Reg. No", value = student.regNo)
                 LabelWithValue(label = "Class", value = student.clazz)
                 LabelWithValue(label = "Roll No", value = student.rollNo)
                 LabelWithValue(label = "Father's Name", value = student.fatherName)

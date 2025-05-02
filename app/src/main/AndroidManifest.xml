@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -22,6 +22,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SchoolsAreBoring"
         tools:targetApi="31">
+        <activity
+            android:name=".activity.myai.MyAi"
+            android:exported="false"
+            android:label="@string/title_activity_my_ai"
+            android:theme="@style/Theme.SchoolsAreBoring" />
         <activity
             android:name=".activity.TimeTable.TimeTable"
             android:exported="false"

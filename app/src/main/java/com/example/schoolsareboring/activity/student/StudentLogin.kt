@@ -23,10 +23,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,6 +54,9 @@ import com.example.schoolsareboring.UserInputField
 import com.example.schoolsareboring.activity.MainActivity
 import com.example.schoolsareboring.activity.clearEntries
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
+import com.example.schoolsareboring.firestore.FirestoreViewModel
+import com.example.schoolsareboring.isEmailValid
+import com.example.schoolsareboring.isPhoneValid
 import com.example.schoolsareboring.room.UserViewModel
 
 class StudentLogin : ComponentActivity() {
@@ -77,12 +82,14 @@ class StudentLogin : ComponentActivity() {
 @Composable
 fun StudentLoginMethod(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val stuRegNo = remember { mutableStateOf("") }
+    val stuPhone = remember { mutableStateOf("") }
     val stuEmail = remember { mutableStateOf("") }
     val preferenceManager = remember { PreferenceManager(context) }
-    val viewModel: UserViewModel = viewModel()
+    val viewModel: FirestoreViewModel = viewModel()
     val errorMsg = remember { mutableStateOf("") }
 
+    val emailError = remember { mutableStateOf("") }
+    val phoneError = remember { mutableStateOf("") }
     Column(
         Modifier
             .fillMaxWidth()
@@ -117,23 +124,23 @@ fun StudentLoginMethod(modifier: Modifier = Modifier) {
             )
             Spacer(modifier = Modifier.height(10.dp))
 
-//          Registration no input
-            UserInputField(
-                label = "Registration No",
-                value = stuRegNo,
-                endIcon = Icons.Default.AccountBox,
-                keyboardType = KeyboardType.Number,
-                enabled = true
-            )
+                    UserInputField(
+                        label = "Phone",
+                        value = stuPhone,
+                        endIcon = Icons.Default.Phone,
+                        keyboardType = KeyboardType.Phone,
+                        enabled = true,
+                    )
 
-//            Email id input
-            UserInputField(
-                label = "Email",
-                value = stuEmail,
-                endIcon = Icons.Default.Email,
-                keyboardType = KeyboardType.Email,
-                enabled = true
-            )
+
+                    UserInputField(
+                        label = "Email",
+                        value = stuEmail,
+                        endIcon = Icons.Default.Email,
+                        keyboardType = KeyboardType.Email,
+                        enabled = true,
+                    )
+
 
             if (errorMsg.value.trim().isNotEmpty()) {
                 Text(
@@ -146,24 +153,24 @@ fun StudentLoginMethod(modifier: Modifier = Modifier) {
         }
         ElevatedButton(
             onClick = {
-//                if (stuEmail.value.isEmpty() || stuRegNo.value.isEmpty()) {
-//                    errorMsg.value = "All fields are required!!"
-//                } else {
-//                    viewModel.checkStudentCredentials(stuEmail.value, stuRegNo.value) { student ->
-//                        if (student != null) {
-//                            errorMsg.value = ""
-//                            preferenceManager.setLoggedIn(true)
-//                            preferenceManager.saveData("userType","student")
-//                            preferenceManager.saveData("name",student.name)
-//                            preferenceManager.saveUserData("userData",student)
-//                            val intent=Intent(context,MainActivity::class.java)
-//                            context.startActivity(intent)
-//                            clearEntries(stuEmail, stuRegNo)
-//                        } else {
-//                            errorMsg.value = "Student not found !!"
-//                        }
-//                    }
-//                }
+                if (stuEmail.value.isEmpty() || stuPhone.value.isEmpty()) {
+                    errorMsg.value = "All fields are required!!"
+                } else {
+                    viewModel.checkStudentCredentials(email = stuEmail.value, phone = stuPhone.value) { student ->
+                        if (student != null) {
+                            errorMsg.value = ""
+                            preferenceManager.setLoggedIn(true)
+                            preferenceManager.saveData("userType","student")
+                            preferenceManager.saveData("name",student.name)
+                            preferenceManager.saveUserData("userData",student)
+                            val intent=Intent(context,MainActivity::class.java)
+                            context.startActivity(intent)
+                            clearEntries(stuEmail, stuPhone)
+                        } else {
+                            errorMsg.value = "Student not found !!"
+                        }
+                    }
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
