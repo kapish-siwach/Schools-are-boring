@@ -37,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -47,13 +46,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsareboring.PreferenceManager
-import com.example.schoolsareboring.R
+import com.example.schoolsareboring.UserInputField
 import com.example.schoolsareboring.activity.MainActivity
 import com.example.schoolsareboring.activity.clearEntries
-import com.example.schoolsareboring.activity.student.UserInputField
 import com.example.schoolsareboring.activity.teachers.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.firestore.FirestoreViewModel
-import com.example.schoolsareboring.room.UserViewModel
 
 class TeacherLogin : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

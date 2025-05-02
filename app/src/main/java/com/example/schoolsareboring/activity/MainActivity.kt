@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -70,6 +71,7 @@ import com.example.schoolsareboring.models.StudentData
 import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.models.UserData
 import com.example.schoolsareboring.ui.theme.SchoolsAreBoringTheme
+import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : ComponentActivity() {
 private val mainViewModel:MainViewModel by viewModels()
@@ -77,6 +79,8 @@ private val mainViewModel:MainViewModel by viewModels()
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+
 
         setContent {
             SchoolsAreBoringTheme {
@@ -102,6 +106,16 @@ private val mainViewModel:MainViewModel by viewModels()
 fun Welcome(modifier: Modifier = Modifier) {
     val context= LocalContext.current
     val preferenceManager= remember { PreferenceManager(context) }
+    val topic= preferenceManager.getData("userType")
+    FirebaseMessaging.getInstance().subscribeToTopic(topic)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("FCM", "Subscribed to 'teachers'")
+            } else {
+                Log.e("FCM", "Subscription failed", task.exception)
+            }
+        }
+
     MainActivityScreen(preferenceManager)
 
 }
@@ -192,7 +206,7 @@ fun MainContent() {
     val context = LocalContext.current
     val preferenceManager = remember { PreferenceManager(context) }
 
-    val userType = preferenceManager.getData("userType") ?: ""
+    val userType = preferenceManager.getData("userType")
 
     // Full list of items
     val allItems = listOf(

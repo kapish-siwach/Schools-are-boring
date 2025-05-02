@@ -29,27 +29,27 @@ class UserRepository(private val usersDao: UsersDao) {
 
 
 //    Students
-
-    fun getAllStudents():Flow<List<StudentData>> = usersDao.getAllStudents()
-
-    suspend fun insertStudent(studentData: StudentData){
-        usersDao.insertStudent(studentData)
-    }
-    suspend fun isRollNoExist(clazz: String, rollNo: String): StudentData? {
-       return usersDao.getStudentByRollNo(clazz,rollNo)
-    }
-
-    suspend fun checkStudentCredentials( stuEmail: String,stuRegNo: String): StudentData? {
-        return usersDao.checkStudentCredentials(stuEmail,stuRegNo)
-    }
-
-    suspend fun updateStudent(student: StudentData) {
-        usersDao.updateStudent(student)
-    }
-
-    suspend fun deleteStudent(student: StudentData){
-        usersDao.deleteStudent(student)
-    }
+//
+//    fun getAllStudents():Flow<List<StudentData>> = usersDao.getAllStudents()
+//
+//    suspend fun insertStudent(studentData: StudentData){
+//        usersDao.insertStudent(studentData)
+//    }
+//    suspend fun isRollNoExist(clazz: String, rollNo: String): StudentData? {
+//       return usersDao.getStudentByRollNo(clazz,rollNo)
+//    }
+//
+//    suspend fun checkStudentCredentials( stuEmail: String,stuRegNo: String): StudentData? {
+//        return usersDao.checkStudentCredentials(stuEmail,stuRegNo)
+//    }
+//
+//    suspend fun updateStudent(student: StudentData) {
+//        usersDao.updateStudent(student)
+//    }
+//
+//    suspend fun deleteStudent(student: StudentData){
+//        usersDao.deleteStudent(student)
+//    }
 
 //    Teachers
 

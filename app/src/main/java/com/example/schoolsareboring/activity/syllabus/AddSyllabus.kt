@@ -41,9 +41,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.schoolsareboring.ClassDropdownPicker
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
-import com.example.schoolsareboring.activity.student.ClassDropdownPicker
 import com.example.schoolsareboring.activity.syllabus.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.models.SyllabusModal
 import com.example.schoolsareboring.room.UserViewModel

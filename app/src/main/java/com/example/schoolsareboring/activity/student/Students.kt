@@ -13,12 +13,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +42,7 @@ import coil.compose.AsyncImage
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
+import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.models.StudentData
 import com.example.schoolsareboring.room.UserViewModel
 
@@ -60,12 +63,15 @@ class Students : ComponentActivity() {
 @Composable
 fun StudentsScreen() {
     val context = LocalContext.current
-    val viewModel: UserViewModel = viewModel()
-    val students by viewModel.allStudents.collectAsState(initial = emptyList())
+    val viewModel: FirestoreViewModel = viewModel()
     val searchQuery = remember { mutableStateOf("") }
     val classOptions = listOf("All", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12")
     val selectedClass = remember { mutableStateOf("All") }
     var expanded by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        viewModel.listenToStudents()
+    }
+    val students=viewModel.allStudents
 
     val filteredStudents = students.filter {
         it.name.contains(searchQuery.value, ignoreCase = true) &&
@@ -78,15 +84,12 @@ fun StudentsScreen() {
             TopAppBar(
                 title = { Text("Students") },
                 navigationIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.back_arrow),
-                        contentDescription = "Back",
-                        modifier = Modifier
-                            .padding(start = 15.dp)
-                            .clickable {
-                                (context as? Activity)?.finish()
-                            }
-                    )
+                   IconButton(onClick = {(context as? Activity)?.finish()}) {
+                        Icon(
+                            Icons.AutoMirrored.Default.KeyboardArrowLeft,
+                            contentDescription = "Back",
+                        )
+                    }
                 }
             )
         },
@@ -105,12 +108,15 @@ fun StudentsScreen() {
                 .padding(4.dp)
         ) {
 
-            Row(modifier=Modifier.fillMaxWidth().padding(10.dp,1.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceEvenly) {
+            Row(modifier= Modifier
+                .fillMaxWidth()
+                .padding(10.dp, 1.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceEvenly) {
                 ExposedDropdownMenuBox(
                     expanded = expanded,
                     onExpandedChange = { expanded = !expanded },
                     modifier = Modifier
-                        .padding(horizontal = 5.dp).weight(0.5f)
+                        .padding(horizontal = 5.dp)
+                        .weight(0.5f)
                 ) {
                     OutlinedTextField(
                         value = selectedClass.value,
@@ -143,7 +149,9 @@ fun StudentsScreen() {
                     value = searchQuery.value,
                     onValueChange = { searchQuery.value = it },
                     label = { Text("Search") },
-                    modifier = Modifier.padding(5.dp).weight(0.5f),
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .weight(0.5f),
                     leadingIcon = {Icon(Icons.Default.Search, contentDescription = "Search")},
                     singleLine = true
                 )
@@ -169,30 +177,35 @@ fun StudentsScreen() {
 fun StudentCard(student: StudentData) {
     val context= LocalContext.current
     val imageUri = student.imageUri?.let { Uri.parse(it) }
-    val userViewModel:UserViewModel= viewModel()
+    val userViewModel:FirestoreViewModel= viewModel()
     val preferenceManager=PreferenceManager(context)
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
-        elevation = CardDefaults.cardElevation(2.dp),
+//        elevation = CardDefaults.cardElevation(2.dp),
         onClick = {}
     ) {
 
 
         Row(modifier = Modifier
-            .padding(5.dp).shadow(2.dp)
+            .padding(5.dp)
+            .shadow(2.dp)
             .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
                 model = imageUri,
                 contentDescription = "Student Image",
-                modifier = Modifier.weight(0.5f).padding(5.dp),
+                modifier = Modifier
+                    .weight(0.5f)
+                    .padding(5.dp),
                 contentScale = ContentScale.Crop,
                 alignment = Alignment.Center
             )
 
-            Column(modifier = Modifier.padding(16.dp).weight(1f)) {
+            Column(modifier = Modifier
+                .padding(16.dp)
+                .weight(1f)) {
                 LabelWithValue(label = "Name", value = student.name)
                 LabelWithValue(label = "Reg. No", value = student.regNo.toString())
                 LabelWithValue(label = "Class", value = student.clazz)
@@ -201,16 +214,20 @@ fun StudentCard(student: StudentData) {
                 LabelWithValue(label = "Phone", value = student.phone)
             }
 
-            Column(Modifier.padding(5.dp).fillMaxHeight(), verticalArrangement = Arrangement.Center) {
+            Column(
+                Modifier
+                    .padding(5.dp)
+                    .fillMaxHeight(), verticalArrangement = Arrangement.Center) {
                 IconButton(onClick = {val intent = Intent(context, AddStudentActivity::class.java).apply {
                     putExtra("studentData", student)
+                    putExtra("firstT",true)
                 }
                     context.startActivity(intent)}, modifier = Modifier.padding(vertical = 10.dp)) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit",Modifier.size(30.dp))
                 }
                 if (preferenceManager.getData("userType")=="admin") {
                     IconButton(
-                        onClick = { userViewModel.deleteStudent(student) },
+                        onClick = { userViewModel.deleteStudent(student.regNo) },
                         modifier = Modifier.padding(vertical = 10.dp),
                         colors = IconButtonDefaults.iconButtonColors(contentColor = Color.Red)
                     ) {

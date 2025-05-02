@@ -71,14 +71,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.schoolsareboring.DOBDatePicker
+import com.example.schoolsareboring.GenderRadioButtons
 import com.example.schoolsareboring.R
-import com.example.schoolsareboring.activity.student.ClassDropdownPicker
-import com.example.schoolsareboring.activity.student.DOBDatePicker
-import com.example.schoolsareboring.activity.student.GenderRadioButtons
-import com.example.schoolsareboring.activity.student.UserInputField
+import com.example.schoolsareboring.SubjectDropDown
+import com.example.schoolsareboring.UserInputField
 import com.example.schoolsareboring.activity.student.clearFields
 import com.example.schoolsareboring.activity.teachers.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.firestore.FirestoreViewModel
+import com.example.schoolsareboring.isEmailValid
+import com.example.schoolsareboring.isPhoneValid
 import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.room.UserViewModel
 
@@ -316,82 +318,4 @@ fun AddTeachersScreen(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SubjectDropDown(selectedSub: String, onSubSelected: (String) -> Unit, enabled: Boolean) {
-        val classOptions = listOf(
-            "Hindi",
-            "English",
-            "Maths",
-            "Physics",
-            "Biology",
-            "Chemistry",
-            "Physical Education",
-            "Fine Arts",
-            "Music",
-            "History",
-            "Geography",
-            "Computer",
-            "Sanskrit",
-            "Economics",
-            "Political Science",
-        )
-        var expanded by remember { mutableStateOf(false) }
-
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { if (enabled) expanded = !expanded },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-
-            ) {
-            OutlinedTextField(
-                value = selectedSub,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Class *") },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded)
-                },
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth(),
-                enabled = enabled,
-                colors = OutlinedTextFieldDefaults.colors(
-                    disabledBorderColor = Color.DarkGray,
-                    disabledLabelColor = Color.DarkGray,
-                    disabledTextColor = Color.DarkGray
-                )
-            )
-
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                classOptions.forEach { className ->
-                    DropdownMenuItem(
-                        text = { Text(className) },
-                        onClick = {
-                            onSubSelected(className)
-                            expanded = false
-                        },
-                        enabled = enabled
-                    )
-                }
-            }
-        }
-    }
-
-
-fun isPhoneValid(phone: String): Boolean {
-    val phoneRegex = "^[0-9]{10}$"
-    return phone.matches(phoneRegex.toRegex())
-}
-
-fun isEmailValid(email: String): Boolean {
-    val emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$"
-    return email.matches(emailRegex.toRegex())
 }

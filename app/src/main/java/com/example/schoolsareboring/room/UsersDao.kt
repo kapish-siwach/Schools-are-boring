@@ -36,23 +36,23 @@ interface UsersDao {
 
 //    Students
 
-    @Query("SELECT * FROM students_table")
-    fun getAllStudents(): Flow<List<StudentData>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertStudent(studentData: StudentData)
-
-    @Delete
-    suspend fun deleteStudent(student: StudentData)
-
-    @Query("SELECT * FROM students_table WHERE clazz = :clazz AND rollNo = :rollNo")
-    suspend fun getStudentByRollNo(clazz: String, rollNo: String): StudentData?
-
-    @Query("SELECT * FROM students_table WHERE  regNo = :stuRegNo AND email = :stuEmail")
-    suspend fun checkStudentCredentials(stuEmail: String,stuRegNo: String): StudentData?
-
-    @Update
-    suspend fun updateStudent(student: StudentData)
+//    @Query("SELECT * FROM students_table")
+//    fun getAllStudents(): Flow<List<StudentData>>
+//
+//    @Insert(onConflict = OnConflictStrategy.REPLACE)
+//    suspend fun insertStudent(studentData: StudentData)
+//
+//    @Delete
+//    suspend fun deleteStudent(student: StudentData)
+//
+//    @Query("SELECT * FROM students_table WHERE clazz = :clazz AND rollNo = :rollNo")
+//    suspend fun getStudentByRollNo(clazz: String, rollNo: String): StudentData?
+//
+//    @Query("SELECT * FROM students_table WHERE  regNo = :stuRegNo AND email = :stuEmail")
+//    suspend fun checkStudentCredentials(stuEmail: String,stuRegNo: String): StudentData?
+//
+//    @Update
+//    suspend fun updateStudent(student: StudentData)
 
 //      Teachers
 

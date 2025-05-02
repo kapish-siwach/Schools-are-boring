@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
@@ -45,9 +46,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.schoolsareboring.ClassDropdownPicker
+import com.example.schoolsareboring.DOBDatePicker
+import com.example.schoolsareboring.GenderRadioButtons
 import com.example.schoolsareboring.R
+import com.example.schoolsareboring.UserInputField
 import com.example.schoolsareboring.room.UserViewModel
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
+import com.example.schoolsareboring.firestore.FirestoreViewModel
+import com.example.schoolsareboring.isEmailValid
+import com.example.schoolsareboring.isPhoneValid
 import com.example.schoolsareboring.models.StudentData
 import java.util.*
 
@@ -58,9 +66,10 @@ class  AddStudentActivity : ComponentActivity() {
 
         val studentData = intent.getSerializableExtra("studentData") as? StudentData
         val editable=intent.getBooleanExtra("nonEditable",true)
+        val firstT=intent.getBooleanExtra("firstT",false)
         setContent {
             SchoolsAreBoringTheme {
-                AddStudent(studentData,editable)
+                AddStudent(studentData,editable,firstT)
             }
         }
     }
@@ -69,7 +78,7 @@ class  AddStudentActivity : ComponentActivity() {
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddStudent(studentData: StudentData? = null, isEditable:Boolean) {
+fun AddStudent(studentData: StudentData? = null, isEditable:Boolean,firstT:Boolean) {
     val context = LocalContext.current
 
     val name = remember { mutableStateOf(studentData?.name ?: "") }
@@ -99,7 +108,7 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean) {
 //    val phone = remember { mutableStateOf("") }
 //    val gender = remember { mutableStateOf("Male") }
 
-    val viewModel: UserViewModel = viewModel()
+    val viewModel: FirestoreViewModel = viewModel()
     val rollNoError = remember { mutableStateOf("") }
     val emailError = remember { mutableStateOf("") }
     val phoneError = remember { mutableStateOf("") }
@@ -132,30 +141,18 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean) {
                 selectedImageUri.value!=null
     }
 
-    fun isPhoneValid(phone: String): Boolean {
-        val phoneRegex = "^[0-9]{10}$"
-        return phone.matches(phoneRegex.toRegex())
-    }
-
-    // Validate email
-    fun isEmailValid(email: String): Boolean {
-        val emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$"
-        return email.matches(emailRegex.toRegex())
-    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(title.value)  },
                 navigationIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.back_arrow),
-                        contentDescription = "Back",
-                        modifier = Modifier
-                            .padding(start = 15.dp, end = 10.dp)
-                            .clip(CircleShape)
-                            .clickable { (context as Activity).finish() }
-                    )
+                   IconButton(onClick = {(context as Activity).finish() }){
+                        Icon(
+                            Icons.AutoMirrored.Default.KeyboardArrowLeft,
+                            contentDescription = "Back",
+                        )
+                    }
                 }
             )
         }
@@ -262,12 +259,15 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean) {
                         value = email,
                         endIcon = Icons.Default.Email,
                         keyboardType = KeyboardType.Email,
-                        enabled = isEditable,
+                        enabled = !firstT,
                         onValueChange = {
                             email.value = it
                             emailError.value = if (isEmailValid(it)) "" else "Invalid email format"
                         }
                     )
+                    if (!firstT){
+                        Text("Email not editable later.", color = MaterialTheme.colorScheme.tertiary, modifier = Modifier.padding(start = 10.dp), fontSize = 12.sp)
+                    }
                     if (emailError.value.isNotEmpty()) {
                         Text(emailError.value, color = MaterialTheme.colorScheme.error)
                     }
@@ -324,7 +324,7 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean) {
 
                             ElevatedButton(
                                 onClick = {
-                                    viewModel.isRollNoExist(
+                                    viewModel.checkStudentRollNo(
                                         clazz.value,
                                         rollNo.value
                                     ) { rollNoExist ->
@@ -337,7 +337,7 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean) {
                                         } else {
                                             rollNoError.value = ""
                                             val student = StudentData(
-                                                regNo = studentData?.regNo ?: 0,
+                                                regNo = email.value,
                                                 name = name.value,
                                                 fatherName = fatherName.value,
                                                 motherName = motherName.value,
@@ -352,7 +352,7 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean) {
                                             )
 
                                             if (isEditMode) {
-                                                viewModel.updateStudent(student)
+                                                viewModel.addStudent(student)
                                                 Toast.makeText(
                                                     context,
                                                     "Student Updated.",
@@ -360,7 +360,7 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean) {
                                                 ).show()
                                                 (context as Activity).finish()
                                             } else {
-                                                viewModel.registerStudent(student)
+                                                viewModel.addStudent(student)
                                                 Toast.makeText(context,"Student Added.",Toast.LENGTH_SHORT).show()
                                                 (context as Activity).finish()
                                                 clearFields(
@@ -397,10 +397,12 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean) {
                             "Please contact admin to edit your profile.",
                             color = Color.Red,
                             fontSize = 18.sp,
-                            modifier = Modifier.fillMaxWidth().padding(
-                                horizontal = 10.dp,
-                                5.dp
-                            )
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    horizontal = 10.dp,
+                                    5.dp
+                                )
                         )
                     }
                 }
@@ -432,204 +434,5 @@ fun clearFields(
     rollNo.value = ""
     gender.value = ""
     selectedImageUri.value=null
-}
-
-@Composable
-fun UserInputField(
-    label: String,
-    value: MutableState<String>,
-    endIcon: ImageVector,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    onValueChange: (String) -> Unit = {},
-    enabled : Boolean = true
-) {
-    OutlinedTextField(
-        value = value.value,
-        onValueChange = {
-            value.value = it
-            onValueChange(it)
-        },
-        label = { Text(label) },
-        trailingIcon = { Icon(endIcon, contentDescription = null) },
-        singleLine = true,
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth(),
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        enabled = enabled,
-        colors=OutlinedTextFieldDefaults.colors(
-            disabledTextColor = Color.DarkGray,
-            disabledBorderColor = Color.DarkGray,
-            disabledLabelColor = Color.DarkGray,
-            disabledTrailingIconColor = Color.DarkGray
-        )
-    )
-}
-
-
-@SuppressLint("DefaultLocale")
-@Composable
-fun DOBDatePicker(
-    dob: String,
-    onDateSelected: (String) -> Unit,
-    enabled: Boolean
-) {
-    val context = LocalContext.current
-    val calendar = Calendar.getInstance()
-
-    val year = calendar.get(Calendar.YEAR)
-    val month = calendar.get(Calendar.MONTH)
-    val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-    // Create the DatePickerDialog
-    val datePickerDialog = remember {
-        DatePickerDialog(context, { _: DatePicker, y: Int, m: Int, d: Int ->
-            val formatted = String.format("%02d/%02d/%04d", d, m + 1, y)
-            onDateSelected(formatted)
-        }, year, month, day).apply {
-            datePicker.maxDate = System.currentTimeMillis()
-        }
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .clickable(
-                enabled = enabled,
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ) {
-                datePickerDialog.show()
-            }
-    ) {
-        OutlinedTextField(
-            value = dob,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Date of Birth *", color = Color.Black)},
-            trailingIcon = {
-                Icon(Icons.Default.Person, contentDescription = "DOB")
-            },
-            modifier = Modifier
-                .fillMaxWidth(),
-            enabled = false,
-            colors = TextFieldDefaults.colors(
-                disabledTextColor = Color.DarkGray,
-                disabledContainerColor = Color.Transparent,
-                disabledTrailingIconColor = Color.DarkGray,
-                focusedContainerColor = Color.DarkGray,
-                unfocusedContainerColor = Color.DarkGray
-            )
-        )
-    }
-}
-
-@Composable
-fun GenderRadioButtons(selectedGender: String, onGenderSelected: (String) -> Unit, enabled: Boolean) {
-    Column(modifier = Modifier.padding(8.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
-        ) {
-            RadioButton(
-                selected = selectedGender == "Male",
-                onClick = { onGenderSelected("Male") },
-                enabled = enabled
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Male", modifier = Modifier.align(Alignment.CenterVertically))
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
-        ) {
-            RadioButton(
-                selected = selectedGender == "Female",
-                onClick = { onGenderSelected("Female") },
-                enabled = enabled
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Female", modifier = Modifier.align(Alignment.CenterVertically))
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
-        ) {
-            RadioButton(
-                selected = selectedGender == "Other",
-                onClick = { onGenderSelected("Other") },
-                enabled = enabled
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Other", modifier = Modifier.align(Alignment.CenterVertically))
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ClassDropdownPicker(selectedClass: String, onClassSelected: (String) -> Unit, enabled: Boolean) {
-    val classOptions = listOf(
-        "Class 1",
-        "Class 2",
-        "Class 3",
-        "Class 4",
-        "Class 5",
-        "Class 6",
-        "Class 7",
-        "Class 8",
-        "Class 9",
-        "Class 10",
-        "Class 11",
-        "Class 12",
-    )
-    var expanded by remember { mutableStateOf(false) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { if (enabled) expanded = !expanded },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-
-    ) {
-        OutlinedTextField(
-            value = selectedClass,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Subject *") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded)
-            },
-            modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth(),
-            enabled = enabled,
-            colors = OutlinedTextFieldDefaults.colors(
-                disabledBorderColor = Color.DarkGray,
-                disabledLabelColor = Color.DarkGray,
-                disabledTextColor = Color.DarkGray
-            )
-        )
-
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            classOptions.forEach { className ->
-                DropdownMenuItem(
-                    text = { Text(className) },
-                    onClick = {
-                        onClassSelected(className)
-                        expanded = false
-                    },
-                    enabled = enabled
-                )
-            }
-        }
-    }
 }
 

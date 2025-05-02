@@ -144,7 +144,6 @@ class FirestoreViewModel : ViewModel() {
             .set(teacher)
             .addOnSuccessListener {
                 Log.d("Firestore", "Teacher added")
-                // Optional: You could still use this to refresh the teachers
             }
             .addOnFailureListener {
                 Log.e("Firestore", "Error adding Teacher", it)
@@ -242,7 +241,6 @@ class FirestoreViewModel : ViewModel() {
             isLoading = true
             errorMessage = null
 
-            // Real-time updates using snapshot listener
             db.collection("students")
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
@@ -260,18 +258,52 @@ class FirestoreViewModel : ViewModel() {
                 }
         }
 
-    fun addStudent(student: StudentData) {
+
+        fun addStudent(student: StudentData) {
+            isLoading = true
+            errorMessage = null
+
+            db.collection("students")
+                .document((student.regNo ?: "").toString())
+                .set(student)
+                .addOnSuccessListener {
+                    Log.d("Firestore", "Teacher added")
+                }
+                .addOnFailureListener {
+                    Log.e("Firestore", "Error adding Teacher", it)
+                    errorMessage = it.message
+                }
+                .addOnCompleteListener {
+                    isLoading = false
+                }
+        }
+
+    fun checkStudentRollNo(clazz: String, roll: String, callback: (Boolean) -> Unit) {
+        db.collection("students")
+            .whereEqualTo("clazz", clazz)
+            .whereEqualTo("rollNo", roll)
+            .get()
+            .addOnSuccessListener { result ->
+                callback(!result.isEmpty)
+            }
+            .addOnFailureListener {
+                Log.e("Firestore", "Roll no check failed", it)
+                callback(false)
+            }
+    }
+
+    fun deleteStudent(studentId: String) {
         isLoading = true
         errorMessage = null
 
-        db.collection("teachers")
-            .document((student.regNo ?: "").toString())
-            .set(student)
+        db.collection("students")
+            .document(studentId)
+            .delete()
             .addOnSuccessListener {
-                Log.d("Firestore", "Teacher added")
+                Log.d("Firestore", "Teacher deleted")
             }
             .addOnFailureListener {
-                Log.e("Firestore", "Error adding Teacher", it)
+                Log.e("Firestore", "Error deleting student", it)
                 errorMessage = it.message
             }
             .addOnCompleteListener {

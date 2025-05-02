@@ -20,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.ButtonDefaults
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
+import com.example.schoolsareboring.UserInputField
 import com.example.schoolsareboring.activity.MainActivity
 import com.example.schoolsareboring.activity.clearEntries
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
@@ -58,7 +60,11 @@ class StudentLogin : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SchoolsAreBoringTheme {
-                Scaffold(modifier = Modifier.fillMaxSize().padding(WindowInsets.systemBars.asPaddingValues())) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(WindowInsets.systemBars.asPaddingValues())
+                ) { innerPadding ->
                     StudentLoginMethod(
                         modifier = Modifier.padding(innerPadding)
                     )
@@ -71,24 +77,35 @@ class StudentLogin : ComponentActivity() {
 @Composable
 fun StudentLoginMethod(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val stuRegNo= remember { mutableStateOf("") }
+    val stuRegNo = remember { mutableStateOf("") }
     val stuEmail = remember { mutableStateOf("") }
     val preferenceManager = remember { PreferenceManager(context) }
     val viewModel: UserViewModel = viewModel()
     val errorMsg = remember { mutableStateOf("") }
 
-    Column(Modifier.fillMaxWidth().imePadding()
-        .verticalScroll(rememberScrollState())
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .imePadding()
+            .verticalScroll(rememberScrollState())
     ) {
-        IconButton(onClick = {(context as Activity).finish() },
-            modifier = Modifier.padding(top=10.dp,start=13.dp).clip(CircleShape)) {
-            Icon(painter = painterResource(id= R.drawable.back_arrow),
+        IconButton(
+            onClick = { (context as Activity).finish() },
+            modifier = Modifier.padding(top = 10.dp, start = 13.dp)
+        ) {
+            Icon(
+                Icons.AutoMirrored.Default.KeyboardArrowLeft,
                 contentDescription = "Back",
             )
         }
 
-        Column (Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp), horizontalAlignment = Alignment.CenterHorizontally){
-           
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
             Text(
                 text = "Log in",
                 modifier = modifier.fillMaxWidth(),
@@ -129,24 +146,24 @@ fun StudentLoginMethod(modifier: Modifier = Modifier) {
         }
         ElevatedButton(
             onClick = {
-                if (stuEmail.value.isEmpty() || stuRegNo.value.isEmpty()) {
-                    errorMsg.value = "All fields are required!!"
-                } else {
-                    viewModel.checkStudentCredentials(stuEmail.value, stuRegNo.value) { student ->
-                        if (student != null) {
-                            errorMsg.value = ""
-                            preferenceManager.setLoggedIn(true)
-                            preferenceManager.saveData("userType","student")
-                            preferenceManager.saveData("name",student.name)
-                            preferenceManager.saveUserData("userData",student)
-                            val intent=Intent(context,MainActivity::class.java)
-                            context.startActivity(intent)
-                            clearEntries(stuEmail, stuRegNo)
-                        } else {
-                            errorMsg.value = "Student not found !!"
-                        }
-                    }
-                }
+//                if (stuEmail.value.isEmpty() || stuRegNo.value.isEmpty()) {
+//                    errorMsg.value = "All fields are required!!"
+//                } else {
+//                    viewModel.checkStudentCredentials(stuEmail.value, stuRegNo.value) { student ->
+//                        if (student != null) {
+//                            errorMsg.value = ""
+//                            preferenceManager.setLoggedIn(true)
+//                            preferenceManager.saveData("userType","student")
+//                            preferenceManager.saveData("name",student.name)
+//                            preferenceManager.saveUserData("userData",student)
+//                            val intent=Intent(context,MainActivity::class.java)
+//                            context.startActivity(intent)
+//                            clearEntries(stuEmail, stuRegNo)
+//                        } else {
+//                            errorMsg.value = "Student not found !!"
+//                        }
+//                    }
+//                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -156,7 +173,12 @@ fun StudentLoginMethod(modifier: Modifier = Modifier) {
                 contentColor = Color.White
             )
         ) {
-            Text("Log in", textAlign = TextAlign.Center, fontSize = 16.sp,modifier= Modifier.padding(5.dp))
+            Text(
+                "Log in",
+                textAlign = TextAlign.Center,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(5.dp)
+            )
         }
     }
 }

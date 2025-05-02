@@ -2,6 +2,7 @@ package com.example.schoolsareboring.firestore
 
 import android.content.Context
 import androidx.activity.result.ActivityResult
+import androidx.compose.runtime.Composable
 import com.example.schoolsareboring.PreferenceManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
@@ -35,3 +36,5 @@ fun handleGoogleSignInResult(
         onFailure("Google sign-in error: ${e.message}")
     }
 }
+
+
