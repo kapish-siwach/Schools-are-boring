@@ -335,7 +335,7 @@ fun Signup(modifier: Modifier = Modifier,firestoreVIewModal: FirestoreViewModel=
                             .size(24.dp)
                     )
                     if (googlePresses.value){
-                        CircularProgressIndicator(modifier.size(24.dp))
+                        CircularProgressIndicator(modifier.size(24.dp).padding(5.dp))
                     } else{
                 Text("Sign up with Google", textAlign = TextAlign.Center, modifier = Modifier.padding(5.dp))
                         }

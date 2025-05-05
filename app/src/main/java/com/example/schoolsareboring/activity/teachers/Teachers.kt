@@ -87,12 +87,11 @@ fun TeacherCard(teacher: TeachersData) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
         onClick = { }
     ) {
 
         Row(modifier = Modifier
-            .padding(5.dp).shadow(2.dp)
+            .padding(5.dp)
             .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
                 model = imageUri,
@@ -102,7 +101,7 @@ fun TeacherCard(teacher: TeachersData) {
                 alignment = Alignment.Center
             )
 
-            Column(modifier = Modifier.padding(16.dp).weight(1f)) {
+            Column(modifier = Modifier.padding(6.dp).weight(1f)) {
                 LabelWithValue(label = "Name", value = teacher.name)
                 LabelWithValue(label = "Email", value = teacher.email)
                 LabelWithValue(label = "Subject", value = teacher.subject)
