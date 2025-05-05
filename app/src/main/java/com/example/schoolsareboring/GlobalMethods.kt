@@ -352,8 +352,6 @@ fun ChatBubble(item: ChatItem) {
         Alignment.Start
     }
 
-    val clipboardManager = LocalClipboardManager.current
-    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
