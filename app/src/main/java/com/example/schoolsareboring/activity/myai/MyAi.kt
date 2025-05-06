@@ -74,9 +74,9 @@ fun MyAiScreen(modifier: Modifier = Modifier) {
     val geminiResponse by viewModel.geminiResponse.observeAsState()
     val error by viewModel.error.observeAsState()
 
-    geminiResponse?.let { response->
+    geminiResponse?.let { responseText->
         isThinking=true
-        val text =  response.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text ?: "No Response"
+        val text =  responseText.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text ?: "No Response"
         chatItems = chatItems.dropLast(1) + ChatItem(text,UserType.AI)
         isThinking=false
         viewModel.clearResponse()
@@ -120,7 +120,6 @@ fun MyAiScreen(modifier: Modifier = Modifier) {
                             placeholder = {Text(text = placeholderr.value, fontSize = 16.sp)},
                             shape = RoundedCornerShape(24.dp),
                             modifier = Modifier.weight(0.2f),
-                            enabled = !isThinking,
                         )
                         IconButton(onClick = {
                             val inputText =userInput.value.trim()
@@ -135,17 +134,18 @@ fun MyAiScreen(modifier: Modifier = Modifier) {
                                     text = inputText
                                 )
                               }
-                        }, enabled = userInput.value.trim().isNotEmpty()) {
+                        }, enabled = userInput.value.trim().isNotEmpty() && !isThinking) {
                             Icon(Icons.AutoMirrored.Default.Send, contentDescription = "send")
                         }
                     }
                 }
-            }, modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)){
-            innerPadding->
-            Column(modifier.padding(innerPadding).fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
-                MessageList(messages = chatItems)
-            }
-        }
+            }, modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
+            content = {
+                    innerPadding->
+                Column(modifier.padding(innerPadding).fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
+                    MessageList(messages = chatItems)
+                }
+            })
     }
 }
 

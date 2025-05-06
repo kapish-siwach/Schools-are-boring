@@ -61,6 +61,7 @@ import com.example.schoolsareboring.MainViewModel
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.activity.TimeTable.TimeTable
+import com.example.schoolsareboring.activity.attendance.Attendance
 import com.example.schoolsareboring.activity.myai.MyAi
 import com.example.schoolsareboring.activity.student.AddStudentActivity
 import com.example.schoolsareboring.activity.student.Students
@@ -81,14 +82,12 @@ private val mainViewModel:MainViewModel by viewModels()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-
-
         setContent {
             SchoolsAreBoringTheme {
                 Scaffold(modifier = Modifier.fillMaxSize().padding(WindowInsets.systemBars.asPaddingValues()),
                     ) { innerPadding ->
-                    val context= LocalContext.current
-                    val preferenceManager= remember { PreferenceManager(context) }
+                    val context = LocalContext.current
+                    val preferenceManager = remember { PreferenceManager(context) }
 
                     if (preferenceManager.isLoggedIn()) {
                     Welcome(modifier = Modifier.padding(innerPadding)
@@ -259,7 +258,7 @@ fun MainContent() {
                                 "students" -> context.startActivity(Intent(context, Students::class.java))
                                 "teacher" -> context.startActivity(Intent(context, Teachers::class.java))
                                 "myai" -> context.startActivity(Intent(context, MyAi::class.java))
-                                "attendance" -> /*context.startActivity(Intent(context, AttendanceActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
+                                "attendance" -> context.startActivity(Intent(context, Attendance::class.java))
                                 "syllabus" -> context.startActivity(Intent(context, Syllabus::class.java))
                                 "time_table" -> context.startActivity(Intent(context, TimeTable::class.java))
                                 "assignments" -> /*context.startActivity(Intent(context, AssignmentsActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()

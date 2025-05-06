@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -56,9 +58,13 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.example.schoolsareboring.models.ChatItem
 import com.example.schoolsareboring.models.UserType
 import io.noties.markwon.Markwon
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 
 
+val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+val currentDate: String =simpleDateFormat.format(Date())
 
 @Composable
 fun UserInputField(
@@ -254,7 +260,64 @@ fun DOBDatePicker(
             readOnly = true,
             label = { Text("Date of Birth *", color = Color.Black)},
             trailingIcon = {
-                Icon(Icons.Default.Person, contentDescription = "DOB")
+                Icon(Icons.Default.DateRange, contentDescription = "DOB")
+            },
+            modifier = Modifier
+                .fillMaxWidth(),
+            enabled = false,
+            colors = TextFieldDefaults.colors(
+                disabledTextColor = Color.DarkGray,
+                disabledContainerColor = Color.Transparent,
+                disabledTrailingIconColor = Color.DarkGray,
+                focusedContainerColor = Color.DarkGray,
+                unfocusedContainerColor = Color.DarkGray
+            )
+        )
+    }
+}
+
+@SuppressLint("DefaultLocale")
+@Composable
+fun DateSelector(
+    sDate: String,
+    onDateSelected: (String) -> Unit,
+    enabled: Boolean
+) {
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    val year = calendar.get(Calendar.YEAR)
+    val month = calendar.get(Calendar.MONTH)
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+    val datePickerDialog = remember {
+        DatePickerDialog(context, { _: DatePicker, y: Int, m: Int, d: Int ->
+            val formatted = String.format("%02d-%02d-%04d", d, m + 1, y)
+            onDateSelected(formatted)
+        }, year, month, day).apply {
+            datePicker.maxDate = System.currentTimeMillis()
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable(
+                enabled = enabled,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) {
+                datePickerDialog.show()
+            }
+    ) {
+        OutlinedTextField(
+            value = sDate,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Date", color = Color.Black)},
+            trailingIcon = {
+                Icon(Icons.Default.DateRange, contentDescription = "date")
             },
             modifier = Modifier
                 .fillMaxWidth(),
@@ -272,20 +335,61 @@ fun DOBDatePicker(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun ClassFilter(
+    selectedClass: String,
+    onClassSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val classOptions = listOf("All", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier.padding(horizontal = 5.dp).fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = selectedClass,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Filter by Class") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+            modifier = Modifier.menuAnchor().fillMaxWidth()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            classOptions.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        onClassSelected(option)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun ClassDropdownPicker(selectedClass: String, onClassSelected: (String) -> Unit, enabled: Boolean) {
     val classOptions = listOf(
-        "Class 1",
-        "Class 2",
-        "Class 3",
-        "Class 4",
-        "Class 5",
-        "Class 6",
-        "Class 7",
-        "Class 8",
-        "Class 9",
-        "Class 10",
-        "Class 11",
-        "Class 12",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
     )
     var expanded by remember { mutableStateOf(false) }
 

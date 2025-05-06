@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.schoolsareboring.ClassFilter
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
@@ -65,10 +66,12 @@ fun StudentsScreen() {
     val context = LocalContext.current
     val viewModel: FirestoreViewModel = viewModel()
     val searchQuery = remember { mutableStateOf("") }
-    val classOptions = listOf("All", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12")
     val selectedClass = remember { mutableStateOf("All") }
-    var expanded by remember { mutableStateOf(false) }
+
+    var loading by remember { mutableStateOf(false) }
+    loading=true
     LaunchedEffect(Unit) {
+        loading=true
         viewModel.listenToStudents()
     }
     val students=viewModel.allStudents
@@ -111,37 +114,11 @@ fun StudentsScreen() {
             Row(modifier= Modifier
                 .fillMaxWidth()
                 .padding(10.dp, 1.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceEvenly) {
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = !expanded },
-                    modifier = Modifier
-                        .padding(horizontal = 5.dp)
-                        .weight(0.5f)
-                ) {
-                    OutlinedTextField(
-                        value = selectedClass.value,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Filter by Class") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                        modifier = Modifier.menuAnchor(),
-                    )
 
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        classOptions.forEach { className ->
-                            DropdownMenuItem(
-                                text = { Text(className) },
-                                onClick = {
-                                    selectedClass.value = className
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
-                }
+                ClassFilter(selectedClass = selectedClass.value,
+                    onClassSelected = { selectedClass.value=it },
+                    modifier = Modifier.weight(0.1f)
+                    )
 
 
                 // Search bar
@@ -151,17 +128,21 @@ fun StudentsScreen() {
                     label = { Text("Search") },
                     modifier = Modifier
                         .padding(5.dp)
-                        .weight(0.5f),
+                        .weight(0.1f),
                     leadingIcon = {Icon(Icons.Default.Search, contentDescription = "Search")},
                     singleLine = true
                 )
             }
 
             Spacer(modifier = Modifier.height(4.dp))
-
+            if (loading){
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            }
             if (filteredStudents.isEmpty()) {
+                loading=false
                 Text("No students found.", modifier = Modifier.padding(16.dp))
             } else {
+                loading=false
                 LazyColumn {
                     items(filteredStudents) { student ->
                         StudentCard(student)
@@ -184,21 +165,19 @@ fun StudentCard(student: StudentData) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
-//        elevation = CardDefaults.cardElevation(2.dp),
         onClick = {}
     ) {
 
-
         Row(modifier = Modifier
             .padding(5.dp)
-//            .shadow(2.dp)
             .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
                 model = imageUri,
                 contentDescription = "Student Image",
                 modifier = Modifier
                     .weight(0.5f)
-                    .padding(5.dp),
+                    .padding(5.dp)
+                    .height(150.dp),
                 contentScale = ContentScale.Crop,
                 alignment = Alignment.Center
             )

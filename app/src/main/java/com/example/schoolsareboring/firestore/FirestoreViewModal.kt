@@ -3,10 +3,14 @@ package com.example.schoolsareboring.firestore
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
+import com.example.schoolsareboring.models.AttendanceMark
 import com.example.schoolsareboring.models.StudentData
 import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.models.UserData
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class FirestoreViewModel : ViewModel() {
 
@@ -25,6 +29,7 @@ class FirestoreViewModel : ViewModel() {
     private val _students= mutableStateListOf<StudentData>()
     val allStudents:List<StudentData> get() = _students
 
+    val attendanceSelections = mutableStateMapOf<String, AttendanceMark>()
 
 
     var isLoading by mutableStateOf(false)
@@ -233,11 +238,9 @@ class FirestoreViewModel : ViewModel() {
             }
     }
 
-
-
 //    Fetch Students
 
-        fun listenToStudents() {
+    fun listenToStudents() {
             isLoading = true
             errorMessage = null
 
@@ -258,19 +261,21 @@ class FirestoreViewModel : ViewModel() {
                 }
         }
 
-
-        fun addStudent(student: StudentData) {
+    fun addStudent(student: StudentData) {
             isLoading = true
             errorMessage = null
 
+            val regNos = student.clazz + student.rollNo  // create unique regNo
+            val newStudent = student.copy(regNo = regNos)
+
             db.collection("students")
-                .document((student.regNo ?: "").toString())
-                .set(student)
+                .document(regNos)
+                .set(newStudent)
                 .addOnSuccessListener {
-                    Log.d("Firestore", "Teacher added")
+                    Log.d("Firestore", "Student added")
                 }
                 .addOnFailureListener {
-                    Log.e("Firestore", "Error adding Teacher", it)
+                    Log.e("Firestore", "Error adding Student", it)
                     errorMessage = it.message
                 }
                 .addOnCompleteListener {
@@ -300,7 +305,7 @@ class FirestoreViewModel : ViewModel() {
             .document(studentId)
             .delete()
             .addOnSuccessListener {
-                Log.d("Firestore", "Teacher deleted")
+                Log.d("Firestore", "student deleted")
             }
             .addOnFailureListener {
                 Log.e("Firestore", "Error deleting student", it)
@@ -323,6 +328,66 @@ class FirestoreViewModel : ViewModel() {
             .addOnFailureListener {
                 Log.e("Firestore", "Login error", it)
                 callback(null)
+            }
+    }
+
+    fun markStudentAttendance(regNo: String, mark: AttendanceMark) {
+        isLoading = true
+        errorMessage = null
+
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        val attendanceData = hashMapOf(
+            "present" to mark.name,
+            "timestamp" to System.currentTimeMillis()
+        )
+
+        db.collection("attendance")
+            .document(date)
+            .collection("students")
+            .document(regNo)
+            .set(attendanceData)
+            .addOnSuccessListener {
+                attendanceSelections[regNo] = mark
+            }
+            .addOnFailureListener {
+                errorMessage = it.message
+            }
+            .addOnCompleteListener {
+                isLoading = false
+            }
+    }
+
+    fun getAttendanceByDate(date: String, callback: (Map<String, Boolean>) -> Unit) {
+        db.collection("attendance")
+            .document(date)
+            .collection("students")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val result = snapshot.documents.associate {
+                    it.id to (it.getBoolean("present") ?: false)
+                }
+                callback(result)
+            }
+            .addOnFailureListener {
+                Log.e("Firestore", "Error fetching attendance", it)
+                callback(emptyMap())
+            }
+    }
+
+    fun loadAttendanceForDate(date: String) {
+        db.collection("Attendance")
+            .document(date)
+            .collection("Students")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                attendanceSelections.clear()
+                for (doc in snapshot.documents) {
+                    val regNo = doc.id /*.getString("regNo") ?: continue*/
+                    val markStr = doc.getString("present") ?: continue
+                    val mark = AttendanceMark.valueOf(markStr)
+                    attendanceSelections[regNo] = mark
+                }
             }
     }
 }

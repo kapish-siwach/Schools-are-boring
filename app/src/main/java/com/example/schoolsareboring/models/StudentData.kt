@@ -3,7 +3,7 @@ package com.example.schoolsareboring.models
 import java.io.Serializable
 
 data class StudentData (
-    val regNo:String = "",
+     val regNo:String = "",
     val name:String = "",
     val email: String = "",
     val fatherName:String = "",
@@ -15,3 +15,9 @@ data class StudentData (
     val gender:String = "",
     val imageUri: String? = null
 ):Serializable
+
+enum class AttendanceMark {
+    PRESENT,
+    ABSENT,
+    LEAVE
+}

@@ -337,7 +337,7 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean,firstT:Boole
                                         } else {
                                             rollNoError.value = ""
                                             val student = StudentData(
-                                                regNo = email.value,
+                                                regNo = "",
                                                 name = name.value,
                                                 fatherName = fatherName.value,
                                                 motherName = motherName.value,
