@@ -60,7 +60,7 @@ import coil.compose.AsyncImage
 import com.example.schoolsareboring.MainViewModel
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
-import com.example.schoolsareboring.activity.TimeTable.TimeTable
+import com.example.schoolsareboring.activity.timetable.TimeTable
 import com.example.schoolsareboring.activity.attendance.Attendance
 import com.example.schoolsareboring.activity.myai.MyAi
 import com.example.schoolsareboring.activity.student.AddStudentActivity
@@ -71,7 +71,6 @@ import com.example.schoolsareboring.activity.teachers.Teachers
 import com.example.schoolsareboring.models.HomeContent
 import com.example.schoolsareboring.models.StudentData
 import com.example.schoolsareboring.models.TeachersData
-import com.example.schoolsareboring.models.UserData
 import com.example.schoolsareboring.ui.theme.SchoolsAreBoringTheme
 import com.google.firebase.messaging.FirebaseMessaging
 
@@ -225,7 +224,7 @@ fun MainContent() {
     )
 
     // Define what a student can see
-    val studentVisibleRoutes = listOf("attendance","myai", "syllabus", "time_table", "assignments", "exam", "result", "fees", "events", "inbox")
+    val studentVisibleRoutes = listOf("myai", "syllabus", "time_table", "assignments", "exam", "result", "fees", "events", "inbox")
     val teacherVisibleRoutes = listOf("students","myai", "attendance", "syllabus", "time_table", "assignments", "exam", "result", "fees", "events", "inbox")
 
     // Filter list based on userType

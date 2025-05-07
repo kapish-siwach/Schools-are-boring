@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.schoolsareboring.ClassFilter
@@ -72,7 +73,9 @@ fun AttendanceScreen() {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Attendance") },
+                title = { Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Attendance")
+                Text(sDate.value, fontSize = 16.sp, modifier = Modifier.padding(end = 5.dp))
+                } },
                 navigationIcon = {
                     IconButton(onClick = { (context as Activity).finish() }) {
                         Icon(
@@ -91,13 +94,12 @@ fun AttendanceScreen() {
                 .padding(horizontal = 10.dp)
         ) {
 
-            Text("${ viewModel.loadAttendanceForDate(sDate.value) }")
 
-            DateSelector(
+          /*  DateSelector(
                 sDate = sDate.value,
                 onDateSelected = { sDate.value = it },
                 enabled = true
-            )
+            )*/
 
             ClassFilter(
                 classFilter.value,

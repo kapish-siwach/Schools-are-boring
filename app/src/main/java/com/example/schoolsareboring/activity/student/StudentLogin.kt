@@ -114,6 +114,15 @@ fun StudentLoginMethod(modifier: Modifier = Modifier) {
         ) {
 
             Text(
+                text = "Student",
+                modifier = modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                color = Color.Black,
+                fontSize = 32.sp,
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
                 text = "Log in",
                 modifier = modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,

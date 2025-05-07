@@ -34,7 +34,7 @@
             android:label="@string/title_activity_my_ai"
             android:theme="@style/Theme.SchoolsAreBoring" />
         <activity
-            android:name=".activity.TimeTable.TimeTable"
+            android:name=".activity.timetable.TimeTable"
             android:exported="false"
             android:label="@string/title_activity_time_table"
             android:theme="@style/Theme.SchoolsAreBoring" />

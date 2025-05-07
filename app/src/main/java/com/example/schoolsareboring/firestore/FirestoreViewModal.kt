@@ -26,6 +26,7 @@ class FirestoreViewModel : ViewModel() {
 
     var students by mutableStateOf<List<StudentData>>(emptyList())
         private set
+
     private val _students= mutableStateListOf<StudentData>()
     val allStudents:List<StudentData> get() = _students
 
@@ -376,18 +377,19 @@ class FirestoreViewModel : ViewModel() {
     }
 
     fun loadAttendanceForDate(date: String) {
-        db.collection("Attendance")
+        db.collection("attendance")
             .document(date)
-            .collection("Students")
+            .collection("students")
             .get()
             .addOnSuccessListener { snapshot ->
                 attendanceSelections.clear()
                 for (doc in snapshot.documents) {
-                    val regNo = doc.id /*.getString("regNo") ?: continue*/
+                    val regNo = doc.id
                     val markStr = doc.getString("present") ?: continue
                     val mark = AttendanceMark.valueOf(markStr)
                     attendanceSelections[regNo] = mark
                 }
             }
     }
+
 }

@@ -89,7 +89,15 @@ fun TeacherLoginScreen( modifier: Modifier = Modifier) {
         }
 
         Column (Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp), horizontalAlignment = Alignment.CenterHorizontally){
-
+            Text(
+                text = "Teacher",
+                modifier = modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                color = Color.Black,
+                fontSize = 32.sp,
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.SemiBold
+            )
             Text(
                 text = "Log in",
                 modifier = modifier.fillMaxWidth(),

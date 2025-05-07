@@ -1,4 +1,4 @@
-package com.example.schoolsareboring.activity.TimeTable
+package com.example.schoolsareboring.activity.timetable
 
 import android.app.Activity
 import android.os.Bundle
@@ -6,12 +6,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.schoolsareboring.activity.TimeTable.ui.theme.SchoolsAreBoringTheme
+import com.example.schoolsareboring.activity.timetable.ui.theme.SchoolsAreBoringTheme
 
 class TimeTable : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
