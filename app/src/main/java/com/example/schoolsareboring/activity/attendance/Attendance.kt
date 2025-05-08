@@ -2,6 +2,7 @@ package com.example.schoolsareboring.activity.attendance
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
@@ -9,9 +10,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.*
@@ -100,13 +103,20 @@ fun AttendanceScreen() {
                 onDateSelected = { sDate.value = it },
                 enabled = true
             )*/
+            Row(verticalAlignment = Alignment.CenterVertically) {
 
-            ClassFilter(
-                classFilter.value,
-                onClassSelected = { classFilter.value = it },
-                modifier = Modifier.fillMaxWidth()
-            )
+                ClassFilter(
+                    classFilter.value,
+                    onClassSelected = { classFilter.value = it },
+                    modifier = Modifier.fillMaxWidth().weight(0.1f)
+                )
 
+                TextButton(onClick = {
+                    context.startActivity(Intent(context,ShowAttendance::class.java))
+                }, border = BorderStroke(1.dp, color = Color.Black)) {
+                    Text("History")
+                }
+            }
             val filteredStudents = students.filter {
                 classFilter.value == "All" || it.clazz == classFilter.value
             }
@@ -139,7 +149,8 @@ fun StudentAttendanceCard(student: StudentData, context: Context, viewModel: Fir
             Row(
                 modifier = Modifier
                     .padding(5.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    ,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AsyncImage(

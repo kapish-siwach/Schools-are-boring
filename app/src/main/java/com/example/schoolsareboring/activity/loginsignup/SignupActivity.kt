@@ -1,4 +1,4 @@
-package com.example.schoolsareboring.activity
+package com.example.schoolsareboring.activity.loginsignup
 
 import android.app.Activity
 import android.content.Intent
@@ -19,7 +19,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -53,15 +52,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.PreferenceManager
+import com.example.schoolsareboring.activity.MainActivity
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.firestore.handleGoogleSignInResult
 import com.example.schoolsareboring.models.UserData
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
 
 class SignupActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -306,7 +303,7 @@ fun Signup(modifier: Modifier = Modifier,firestoreVIewModal: FirestoreViewModel=
             }
 
             TextButton(onClick = {
-                context.startActivity(Intent(context,LoginActivity::class.java))
+                context.startActivity(Intent(context, LoginActivity::class.java))
             }) {
                 Row { Text("Already have an account? ")
                     Text("Log in", color = Color.Blue)}

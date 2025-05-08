@@ -82,7 +82,6 @@ import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.isEmailValid
 import com.example.schoolsareboring.isPhoneValid
 import com.example.schoolsareboring.models.TeachersData
-import com.example.schoolsareboring.room.UserViewModel
 
 class AddTeachersActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

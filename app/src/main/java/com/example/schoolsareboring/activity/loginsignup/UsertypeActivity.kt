@@ -1,8 +1,7 @@
-package com.example.schoolsareboring.activity
+package com.example.schoolsareboring.activity.loginsignup
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -105,7 +104,7 @@ fun SelectUserType(modifier: Modifier = Modifier) {
                        shape = RoundedCornerShape(8.dp)
                    )
                    .clickable {
-                      context.startActivity(Intent(context,SignupActivity::class.java))
+                      context.startActivity(Intent(context, SignupActivity::class.java))
                    },
                contentAlignment = Alignment.Center,
 

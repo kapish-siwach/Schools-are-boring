@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -44,9 +46,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsareboring.ClassDropdownPicker
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
+import com.example.schoolsareboring.UserInputField
 import com.example.schoolsareboring.activity.syllabus.ui.theme.SchoolsAreBoringTheme
+import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.models.SyllabusModal
-import com.example.schoolsareboring.room.UserViewModel
 
 class AddSyllabus : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,25 +70,10 @@ class AddSyllabus : ComponentActivity() {
 fun AddSyllabusScreen(modifier: Modifier = Modifier) {
     val context= LocalContext.current
     val clazz= remember { mutableStateOf("") }
+    val fileUrl= remember { mutableStateOf("") }
     val preferenceManager=PreferenceManager(context)
-    val selectedPdf = remember { mutableStateOf<Uri?>(null) }
-    val fileName = remember { mutableStateOf("") }
-    val viewModel:UserViewModel= viewModel()
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            selectedPdf.value = it
+    val viewModel:FirestoreViewModel= viewModel()
 
-            val cursor = context.contentResolver.query(it, null, null, null, null)
-            cursor?.use { c ->
-                val nameIndex = c.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                if (c.moveToFirst()) {
-                    fileName.value = c.getString(nameIndex)
-                }
-            }
-        }
-    }
 
 
     Column(modifier.fillMaxSize()) {
@@ -116,28 +104,20 @@ fun AddSyllabusScreen(modifier: Modifier = Modifier) {
 
                 Spacer(modifier.height(15.dp))
 
-                IconButton(onClick = {launcher.launch("application/pdf") },modifier.size(100.dp)) {
-                    Image(painter = painterResource(id=R.drawable.inbox), contentDescription = "uploadFile")
-                }
-                Text("Upload File", fontSize = 16.sp)
-
-                selectedPdf.value?.let {
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Text("Selected file: ${fileName.value}", fontSize = 14.sp)
-                }
+                UserInputField(label = "Paste drive url of file", value = fileUrl, onValueChange = {fileUrl.value = it}, endIcon = Icons.Default.Add)
 
                 Spacer(modifier.height(15.dp))
 
                 ElevatedButton(onClick = {
                     val syllabus=SyllabusModal(
-                            clazz=clazz.value,
-                            fileUri = selectedPdf.value.toString()
+                          clazz=clazz.value,
+                          fileUrl = fileUrl.value
                             )
-                    viewModel.insertSyllabus(syllabus)
+                    viewModel.addSyllabus(syllabus)
                     (context as Activity).finish()
                     Toast.makeText(context,"Syllabus added for ${clazz.value}",Toast.LENGTH_SHORT).show()
                 }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-                     enabled = selectedPdf.value!=null && clazz.value.isNotEmpty()
+                     enabled = fileUrl.value.trim().isNotEmpty() && clazz.value.trim().isNotEmpty()
                 ) {
                     Text(
                         "Submit",

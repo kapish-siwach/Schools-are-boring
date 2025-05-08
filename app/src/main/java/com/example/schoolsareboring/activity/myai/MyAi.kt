@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -39,7 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.schoolsareboring.GeminiViewModel
+import com.example.schoolsareboring.viewmodels.GeminiViewModel
 import com.example.schoolsareboring.MessageList
 import com.example.schoolsareboring.activity.myai.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.models.ChatItem
@@ -69,7 +67,7 @@ fun MyAiScreen(modifier: Modifier = Modifier) {
     val placeholderr = remember { mutableStateOf("") }
     var isThinking by remember { mutableStateOf(false) }
     var chatItems by remember { mutableStateOf(listOf<ChatItem>()) }
-    val viewModel:GeminiViewModel = viewModel()
+    val viewModel: GeminiViewModel = viewModel()
 
     val geminiResponse by viewModel.geminiResponse.observeAsState()
     val error by viewModel.error.observeAsState()

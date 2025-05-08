@@ -48,7 +48,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.UserInputField
 import com.example.schoolsareboring.activity.MainActivity
-import com.example.schoolsareboring.activity.clearEntries
+import com.example.schoolsareboring.activity.loginsignup.clearEntries
 import com.example.schoolsareboring.activity.teachers.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.firestore.FirestoreViewModel
 

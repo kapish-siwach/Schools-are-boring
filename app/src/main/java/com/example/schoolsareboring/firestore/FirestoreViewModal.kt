@@ -5,9 +5,14 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import com.example.schoolsareboring.models.AttendanceMark
 import com.example.schoolsareboring.models.StudentData
+import com.example.schoolsareboring.models.SyllabusModal
 import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.models.UserData
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.SetOptions
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -30,8 +35,13 @@ class FirestoreViewModel : ViewModel() {
     private val _students= mutableStateListOf<StudentData>()
     val allStudents:List<StudentData> get() = _students
 
-    val attendanceSelections = mutableStateMapOf<String, AttendanceMark>()
+    var syllabus by mutableStateOf<List<SyllabusModal>>(emptyList())
+        private set
+    private val _syllabus = mutableStateListOf<SyllabusModal>()
+    val allSyllabus:List<SyllabusModal> get() = _syllabus
 
+
+    val attendanceSelections = mutableStateMapOf<String, AttendanceMark>()
 
     var isLoading by mutableStateOf(false)
         private set
@@ -345,33 +355,76 @@ class FirestoreViewModel : ViewModel() {
 
         db.collection("attendance")
             .document(date)
-            .collection("students")
-            .document(regNo)
-            .set(attendanceData)
+            .set(mapOf("created" to true), SetOptions.merge())
             .addOnSuccessListener {
-                attendanceSelections[regNo] = mark
+
+                db.collection("attendance")
+                    .document(date)
+                    .collection("students")
+                    .document(regNo)
+                    .set(attendanceData)
+                    .addOnSuccessListener {
+                        attendanceSelections[regNo] = mark
+                    }
+                    .addOnFailureListener {
+                        errorMessage = it.message
+                    }
+                    .addOnCompleteListener {
+                        isLoading = false
+                    }
             }
             .addOnFailureListener {
                 errorMessage = it.message
-            }
-            .addOnCompleteListener {
                 isLoading = false
             }
     }
 
-    fun getAttendanceByDate(date: String, callback: (Map<String, Boolean>) -> Unit) {
+    fun loadAllAttendance(callback: (Map<String, Map<String, AttendanceMark>>) -> Unit) {
         db.collection("attendance")
-            .document(date)
-            .collection("students")
             .get()
-            .addOnSuccessListener { snapshot ->
-                val result = snapshot.documents.associate {
-                    it.id to (it.getBoolean("present") ?: false)
+            .addOnSuccessListener { dateSnapshots ->
+                val result = mutableMapOf<String, MutableMap<String, AttendanceMark>>()
+                val dates = dateSnapshots.documents.map { it.id }
+
+                if (dates.isEmpty()) {
+                    Log.d("AttendanceDebug", "No attendance dates found.")
+                    callback(emptyMap())
+                    return@addOnSuccessListener
                 }
-                callback(result)
+
+                var pending = dates.size
+
+                for (date in dates) {
+                    db.collection("attendance")
+                        .document(date)
+                        .collection("students")
+                        .get()
+                        .addOnSuccessListener { studentSnapshots ->
+                            for (doc in studentSnapshots) {
+                                val regNo = doc.id
+                                val markStr = doc.getString("present") ?: continue
+                                val mark = AttendanceMark.valueOf(markStr)
+
+                                if (!result.containsKey(regNo)) {
+                                    result[regNo] = mutableMapOf()
+                                }
+                                result[regNo]?.put(date, mark)
+                            }
+                        }
+                        .addOnFailureListener {
+                            Log.e("AttendanceDebug", "Failed to load data for $date", it)
+                        }
+                        .addOnCompleteListener {
+                            pending--
+                            if (pending == 0) {
+                                Log.d("AttendanceDebug", "All data loaded. Total students with data: ${result.size}")
+                                callback(result)
+                            }
+                        }
+                }
             }
             .addOnFailureListener {
-                Log.e("Firestore", "Error fetching attendance", it)
+                Log.e("AttendanceDebug", "Failed to fetch attendance root", it)
                 callback(emptyMap())
             }
     }
@@ -392,4 +445,65 @@ class FirestoreViewModel : ViewModel() {
             }
     }
 
+
+//    Syllabus
+
+
+    fun addSyllabus(syllabusModal: SyllabusModal){
+        isLoading =true
+        errorMessage =null
+        db.collection("syllabus")
+            .document(syllabusModal.clazz)
+            .set(syllabusModal)
+            .addOnSuccessListener {
+                Log.d("Firestore", "Syllabus added ")
+            }
+            .addOnFailureListener {
+                Log.e("Firestore", "Error adding syllabus", it)
+                errorMessage = it.message
+            }
+            .addOnCompleteListener {
+                isLoading = false
+            }
+    }
+
+    fun listenToSyllabus() {
+        isLoading = true
+        errorMessage = null
+
+        db.collection("syllabus")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("Firestore", "Listen failed.", error)
+                    errorMessage = error.message
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val list = snapshot.documents.mapNotNull { it.toObject(SyllabusModal::class.java) }
+                    syllabus = list
+                    _syllabus.clear()
+                    _syllabus.addAll(list)
+                }
+            }
+    }
+
+    fun deleteSyllabus(clazz: String) {
+        isLoading = true
+        errorMessage = null
+
+        db.collection("syllabus")
+            .document(clazz)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("Firestore", "Syllabus deleted")
+            }
+            .addOnFailureListener {
+                Log.e("Firestore", "Error deleting Syllabus", it)
+                errorMessage = it.message
+            }
+            .addOnCompleteListener {
+                isLoading = false
+            }
+    }
 }

@@ -57,11 +57,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.schoolsareboring.MainViewModel
+import com.example.schoolsareboring.viewmodels.MainViewModel
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
-import com.example.schoolsareboring.activity.timetable.TimeTable
 import com.example.schoolsareboring.activity.attendance.Attendance
+import com.example.schoolsareboring.activity.loginsignup.UsertypeActivity
 import com.example.schoolsareboring.activity.myai.MyAi
 import com.example.schoolsareboring.activity.student.AddStudentActivity
 import com.example.schoolsareboring.activity.student.Students
@@ -75,7 +75,7 @@ import com.example.schoolsareboring.ui.theme.SchoolsAreBoringTheme
 import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : ComponentActivity() {
-private val mainViewModel:MainViewModel by viewModels()
+private val mainViewModel: MainViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -259,7 +259,7 @@ fun MainContent() {
                                 "myai" -> context.startActivity(Intent(context, MyAi::class.java))
                                 "attendance" -> context.startActivity(Intent(context, Attendance::class.java))
                                 "syllabus" -> context.startActivity(Intent(context, Syllabus::class.java))
-                                "time_table" -> context.startActivity(Intent(context, TimeTable::class.java))
+//                                "time_table" -> context.startActivity(Intent(context, TimeTable::class.java))
                                 "assignments" -> /*context.startActivity(Intent(context, AssignmentsActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "exam" -> /*context.startActivity(Intent(context, ExamActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "result" -> /*context.startActivity(Intent(context, ResultsActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()

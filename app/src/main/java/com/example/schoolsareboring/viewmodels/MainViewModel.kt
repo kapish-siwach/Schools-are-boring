@@ -1,4 +1,4 @@
-package com.example.schoolsareboring
+package com.example.schoolsareboring.viewmodels
 
 import androidx.lifecycle.ViewModel
 import com.example.schoolsareboring.models.StudentData

@@ -1,4 +1,4 @@
-package com.example.schoolsareboring.activity
+package com.example.schoolsareboring.activity.loginsignup
 
 import android.app.Activity
 import android.content.Intent
@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.PreferenceManager
-import com.example.schoolsareboring.room.UserViewModel
+import com.example.schoolsareboring.activity.MainActivity
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.firestore.handleGoogleSignInResult

@@ -51,7 +51,6 @@ import com.example.schoolsareboring.DOBDatePicker
 import com.example.schoolsareboring.GenderRadioButtons
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.UserInputField
-import com.example.schoolsareboring.room.UserViewModel
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.isEmailValid

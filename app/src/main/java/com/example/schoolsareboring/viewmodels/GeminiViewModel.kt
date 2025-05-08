@@ -1,10 +1,10 @@
-package com.example.schoolsareboring
+package com.example.schoolsareboring.viewmodels
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.schoolsareboring.Retrofit.GeminiInstance
+import com.example.schoolsareboring.retrofit.GeminiInstance
 import com.example.schoolsareboring.models.Content
 import com.example.schoolsareboring.models.GeminiRequest
 import com.example.schoolsareboring.models.GeminiResponse

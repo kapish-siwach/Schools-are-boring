@@ -1,4 +1,4 @@
-package com.example.schoolsareboring.Retrofit
+package com.example.schoolsareboring.retrofit
 
 import com.example.schoolsareboring.models.GeminiRequest
 import com.example.schoolsareboring.models.GeminiResponse

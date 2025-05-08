@@ -15,4 +15,6 @@
     <string name="default_web_client_id">701222988606-3iu4jlsu8ot6ib7k4i8eg98hp0c7sp5g.apps.googleusercontent.com</string>
     <string name="title_activity_my_ai">MyAi</string>
     <string name="title_activity_attendance">Attendance</string>
+    <string name="title_activity_result">Result</string>
+    <string name="title_activity_show_results">ShowResults</string>
 </resources>

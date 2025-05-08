@@ -45,7 +45,6 @@ import com.example.schoolsareboring.R
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.models.StudentData
-import com.example.schoolsareboring.room.UserViewModel
 
 class Students : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
