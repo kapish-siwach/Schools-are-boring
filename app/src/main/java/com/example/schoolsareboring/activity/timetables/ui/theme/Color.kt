@@ -1,4 +1,4 @@
-package com.example.schoolsareboring.activity.timetable.ui.theme
+package com.example.schoolsareboring.activity.timetables.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

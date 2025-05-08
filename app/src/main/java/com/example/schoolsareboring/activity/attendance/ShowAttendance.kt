@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.schoolsareboring.ClassFilter
 import com.example.schoolsareboring.activity.attendance.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.models.AttendanceMark
@@ -46,6 +47,11 @@ fun ShowAttendanceScreen() {
     val allAttendance = remember { mutableStateOf<Map<String, Map<String, AttendanceMark>>>(emptyMap()) }
     val allDates = remember { mutableStateListOf<String>() }
     val students by remember { derivedStateOf { viewModel.allStudents } }
+    val selectedClass = remember { mutableStateOf("All") }
+
+    val filteredStudents = students.filter {
+                (selectedClass.value == "All" || it.clazz == selectedClass.value)
+    }
 
     LaunchedEffect(Unit) {
         viewModel.listenToStudents()
@@ -56,9 +62,6 @@ fun ShowAttendanceScreen() {
             data.values.forEach { map -> dateSet.addAll(map.keys) }
             allDates.clear()
             allDates.addAll(dateSet.sorted())
-
-            // Debug output
-            println("All Dates: $allDates")
         }
     }
 
@@ -72,10 +75,16 @@ fun ShowAttendanceScreen() {
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
-            if (students.isEmpty()) {
-                Text("Loading students...", modifier = Modifier.padding(16.dp))
+
+            ClassFilter(selectedClass = selectedClass.value,
+                onClassSelected = { selectedClass.value=it },
+                modifier = Modifier.padding(horizontal = 10.dp)
+            )
+
+            if (filteredStudents.isEmpty()) {
+                Text("No Student Found..", modifier = Modifier.padding(16.dp))
             } else {
-                AttendanceTable(allAttendance.value, allDates, students)
+                AttendanceTable(allAttendance.value, allDates, filteredStudents)
             }
         }
     }
@@ -93,7 +102,9 @@ fun AttendanceTable(
         item {
             Row(Modifier.horizontalScroll(scrollState)) {
                 Row(Modifier.padding(vertical = 4.dp)) {
-                    Text("Name", Modifier.width(120.dp), fontWeight = FontWeight.Bold)
+                    Text("Name", Modifier.width(100.dp), fontWeight = FontWeight.Bold)
+                    Text("Reg no.", Modifier.width(100.dp), fontWeight = FontWeight.SemiBold)
+                    Text("Class", Modifier.width(100.dp), fontWeight = FontWeight.SemiBold)
                     allDates.forEach { date ->
                         Text(
                             text = date.takeLast(5),
@@ -111,7 +122,9 @@ fun AttendanceTable(
             val attendance = attendanceData[student.regNo] ?: emptyMap()
             Row(Modifier.horizontalScroll(scrollState)) {
                 Row(Modifier.padding(vertical = 4.dp)) {
-                    Text(student.name, Modifier.width(120.dp))
+                    Text(student.name, Modifier.width(100.dp), fontWeight = FontWeight.SemiBold)
+                    Text(student.regNo, Modifier.width(100.dp),fontWeight = FontWeight.Black)
+                    Text(student.clazz, Modifier.width(100.dp),fontWeight = FontWeight.Black)
                     allDates.forEach { date ->
                         val markChar = when (attendance[date]) {
                             AttendanceMark.PRESENT -> "P"

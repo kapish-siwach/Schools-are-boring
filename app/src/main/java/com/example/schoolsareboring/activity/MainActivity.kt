@@ -68,6 +68,7 @@ import com.example.schoolsareboring.activity.student.Students
 import com.example.schoolsareboring.activity.syllabus.Syllabus
 import com.example.schoolsareboring.activity.teachers.AddTeachersActivity
 import com.example.schoolsareboring.activity.teachers.Teachers
+import com.example.schoolsareboring.activity.timetables.TimeTable
 import com.example.schoolsareboring.models.HomeContent
 import com.example.schoolsareboring.models.StudentData
 import com.example.schoolsareboring.models.TeachersData
@@ -259,7 +260,7 @@ fun MainContent() {
                                 "myai" -> context.startActivity(Intent(context, MyAi::class.java))
                                 "attendance" -> context.startActivity(Intent(context, Attendance::class.java))
                                 "syllabus" -> context.startActivity(Intent(context, Syllabus::class.java))
-//                                "time_table" -> context.startActivity(Intent(context, TimeTable::class.java))
+                                "time_table" -> context.startActivity(Intent(context, TimeTable::class.java))
                                 "assignments" -> /*context.startActivity(Intent(context, AssignmentsActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "exam" -> /*context.startActivity(Intent(context, ExamActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "result" -> /*context.startActivity(Intent(context, ResultsActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()

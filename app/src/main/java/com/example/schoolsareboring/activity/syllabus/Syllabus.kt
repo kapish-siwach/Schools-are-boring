@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -129,6 +130,7 @@ fun SyllabusCard(syllabus: SyllabusModal, session: PreferenceManager,viewModel:F
 
     val context = LocalContext.current
     Column {
+
         Card(
             modifier = Modifier
                 .padding(10.dp)
@@ -138,9 +140,14 @@ fun SyllabusCard(syllabus: SyllabusModal, session: PreferenceManager,viewModel:F
                 modifier = Modifier
                     .padding(5.dp)
                     .fillMaxSize()
-                    .clickable {
+                     .clickable {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(syllabus.fileUrl))
-                        context.startActivity(intent)
+                         try {
+                             context.startActivity(intent)
+                         }catch (e:Exception){
+                             Toast.makeText(context,e.message,Toast.LENGTH_SHORT).show()
+                         }
+
                     },
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally

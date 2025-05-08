@@ -40,6 +40,10 @@ class FirestoreViewModel : ViewModel() {
     private val _syllabus = mutableStateListOf<SyllabusModal>()
     val allSyllabus:List<SyllabusModal> get() = _syllabus
 
+    var timetable by mutableStateOf<List<SyllabusModal>>(emptyList())
+        private set
+    private val _timetable = mutableStateListOf<SyllabusModal>()
+    val allTimetable:List<SyllabusModal> get() = _timetable
 
     val attendanceSelections = mutableStateMapOf<String, AttendanceMark>()
 
@@ -500,6 +504,68 @@ class FirestoreViewModel : ViewModel() {
             }
             .addOnFailureListener {
                 Log.e("Firestore", "Error deleting Syllabus", it)
+                errorMessage = it.message
+            }
+            .addOnCompleteListener {
+                isLoading = false
+            }
+    }
+
+
+
+//    Time Table
+
+    fun addTimetable(syllabusModal: SyllabusModal){
+        isLoading =true
+        errorMessage =null
+        db.collection("timetable")
+            .document(syllabusModal.clazz)
+            .set(syllabusModal)
+            .addOnSuccessListener {
+                Log.d("Firestore", "Timetable added ")
+            }
+            .addOnFailureListener {
+                Log.e("Firestore", "Error adding Timetable", it)
+                errorMessage = it.message
+            }
+            .addOnCompleteListener {
+                isLoading = false
+            }
+    }
+
+    fun listenToTimetable() {
+        isLoading = true
+        errorMessage = null
+
+        db.collection("timetable")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("Firestore", "Listen failed.", error)
+                    errorMessage = error.message
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val list = snapshot.documents.mapNotNull { it.toObject(SyllabusModal::class.java) }
+                    timetable = list
+                    _timetable.clear()
+                    _timetable.addAll(list)
+                }
+            }
+    }
+
+    fun deleteTimetable(clazz: String) {
+        isLoading = true
+        errorMessage = null
+
+        db.collection("timetable")
+            .document(clazz)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("Firestore", "Timetable deleted")
+            }
+            .addOnFailureListener {
+                Log.e("Firestore", "Error deleting Timetable", it)
                 errorMessage = it.message
             }
             .addOnCompleteListener {
