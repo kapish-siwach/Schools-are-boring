@@ -68,13 +68,13 @@ fun StudentsScreen() {
     val searchQuery = remember { mutableStateOf("") }
     val selectedClass = remember { mutableStateOf("All") }
 
-    var loading by remember { mutableStateOf(false) }
-    loading=true
+    val loading by remember { mutableStateOf(viewModel.isLoading) }
+
     LaunchedEffect(Unit) {
-        loading=true
+
         viewModel.listenToStudents()
     }
-    val students=viewModel.allStudents
+    val students = viewModel.allStudents
 
     val filteredStudents = students.filter {
         it.name.contains(searchQuery.value, ignoreCase = true) &&
@@ -139,10 +139,10 @@ fun StudentsScreen() {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
             if (filteredStudents.isEmpty()) {
-                loading=false
+
                 Text("No students found.", modifier = Modifier.padding(16.dp))
             } else {
-                loading=false
+
                 LazyColumn {
                     items(filteredStudents) { student ->
                         StudentCard(student)

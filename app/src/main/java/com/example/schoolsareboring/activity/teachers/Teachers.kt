@@ -101,7 +101,7 @@ fun TeacherCard(teacher: TeachersData) {
             AsyncImage(
                 model = imageUri,
                 contentDescription = "Teacher Image",
-                modifier = Modifier.weight(0.5f).padding(5.dp).shadow(2.dp),
+                modifier = Modifier.weight(0.5f).padding(5.dp).shadow(2.dp).height(150.dp),
                 contentScale = ContentScale.Crop,
                 alignment = Alignment.Center
             )

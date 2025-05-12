@@ -74,7 +74,9 @@ fun UserInputField(
     endIcon: ImageVector,
     keyboardType: KeyboardType = KeyboardType.Text,
     onValueChange: (String) -> Unit = {},
-    enabled : Boolean = true
+    enabled : Boolean = true,
+    modifier: Modifier = Modifier,
+    singleLine:Boolean =true
 ) {
     OutlinedTextField(
         value = value.value,
@@ -83,9 +85,9 @@ fun UserInputField(
             onValueChange(it)
         },
         label = { Text(label) },
-        trailingIcon = { Icon(endIcon, contentDescription = null) },
-        singleLine = true,
-        modifier = Modifier
+        trailingIcon = { Icon(endIcon, contentDescription = label) },
+        singleLine = singleLine,
+        modifier = modifier
             .padding(8.dp)
             .fillMaxWidth(),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),

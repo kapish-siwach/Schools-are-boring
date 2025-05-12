@@ -40,6 +40,11 @@ class FirestoreViewModel : ViewModel() {
     private val _syllabus = mutableStateListOf<SyllabusModal>()
     val allSyllabus:List<SyllabusModal> get() = _syllabus
 
+    private var assignment by mutableStateOf<List<SyllabusModal>>(emptyList())
+        private set
+    private val _assignment = mutableStateListOf<SyllabusModal>()
+    val allAssignment:List<SyllabusModal> get() = _assignment
+
     var timetable by mutableStateOf<List<SyllabusModal>>(emptyList())
         private set
     private val _timetable = mutableStateListOf<SyllabusModal>()
@@ -262,12 +267,14 @@ class FirestoreViewModel : ViewModel() {
             db.collection("students")
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
+                        isLoading =false
                         Log.e("Firestore", "Listen failed.", error)
                         errorMessage = error.message
                         return@addSnapshotListener
                     }
 
                     if (snapshot != null) {
+                        isLoading =false
                         val list = snapshot.documents.mapNotNull { it.toObject(StudentData::class.java) }
                         students = list
                         _students.clear()
@@ -287,9 +294,11 @@ class FirestoreViewModel : ViewModel() {
                 .document(regNos)
                 .set(newStudent)
                 .addOnSuccessListener {
+                    isLoading =false
                     Log.d("Firestore", "Student added")
                 }
                 .addOnFailureListener {
+                    isLoading =false
                     Log.e("Firestore", "Error adding Student", it)
                     errorMessage = it.message
                 }
@@ -331,14 +340,14 @@ class FirestoreViewModel : ViewModel() {
             }
     }
 
-    fun checkStudentCredentials(email: String, phone: String, callback: (TeachersData?) -> Unit) {
+    fun checkStudentCredentials(email: String, phone: String, callback: (StudentData?) -> Unit) {
         db.collection("students")
             .whereEqualTo("email", email)
             .whereEqualTo("phone", phone)
             .get()
             .addOnSuccessListener { result ->
-                val teacher = result.documents.firstOrNull()?.toObject(TeachersData::class.java)
-                callback(teacher)
+                val student = result.documents.firstOrNull()?.toObject(StudentData::class.java)
+                callback(student)
             }
             .addOnFailureListener {
                 Log.e("Firestore", "Login error", it)
@@ -511,6 +520,72 @@ class FirestoreViewModel : ViewModel() {
             }
     }
 
+    //    Assignments
+
+    fun addAssignment(syllabusModal: SyllabusModal){
+        isLoading =true
+        errorMessage =null
+        db.collection("assignments")
+            .document(syllabusModal.clazz)
+            .set(syllabusModal)
+            .addOnSuccessListener {
+                isLoading =false
+                Log.d("Firestore", "Assignment added ")
+            }
+            .addOnFailureListener {
+                isLoading =false
+                Log.e("Firestore", "Error adding Assignment", it)
+                errorMessage = it.message
+            }
+            .addOnCompleteListener {
+                isLoading = false
+            }
+    }
+
+    fun listenToAssignment() {
+        isLoading = true
+        errorMessage = null
+
+        db.collection("assignments")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    isLoading =false
+                    Log.e("Firestore", "Listen failed.", error)
+                    errorMessage = error.message
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    isLoading =false
+                    val list = snapshot.documents.mapNotNull { it.toObject(SyllabusModal::class.java) }
+                    assignment = list
+                    _assignment.clear()
+                    _assignment.addAll(list)
+                }
+            }
+    }
+
+    fun deleteAssignment(clazz: String) {
+        isLoading = true
+        errorMessage = null
+
+        db.collection("assignments")
+            .document(clazz)
+            .delete()
+            .addOnSuccessListener {
+                isLoading =false
+                Log.d("Firestore", "Assignment deleted")
+            }
+            .addOnFailureListener {
+                isLoading =false
+                Log.e("Firestore", "Error deleting Assignment", it)
+                errorMessage = it.message
+            }
+            .addOnCompleteListener {
+                isLoading = false
+            }
+    }
+
 
 
 //    Time Table
@@ -572,4 +647,6 @@ class FirestoreViewModel : ViewModel() {
                 isLoading = false
             }
     }
+
+
 }
