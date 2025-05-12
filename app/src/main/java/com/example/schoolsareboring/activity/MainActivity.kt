@@ -266,7 +266,7 @@ fun MainContent() {
                                 "time_table" -> context.startActivity(Intent(context, TimeTable::class.java))
                                 "assignments" -> context.startActivity(Intent(context, AssignmentActivity::class.java))
                                 "exam" -> /*context.startActivity(Intent(context, ExamActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
-                                "result" -> /*context.startActivity(Intent(context, ResultsActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
+                                "result" -> context.startActivity(Intent(context, Result::class.java))
                                 "fees" -> /*context.startActivity(Intent(context, FeesActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "events" -> /*context.startActivity(Intent(context, EventsActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "inbox" -> /*context.startActivity(Intent(context, InboxActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()

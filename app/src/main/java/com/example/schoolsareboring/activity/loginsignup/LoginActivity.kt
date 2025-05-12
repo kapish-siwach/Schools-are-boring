@@ -39,6 +39,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.activity.MainActivity
+import com.example.schoolsareboring.activity.attendance.ui.theme.ButtonBlue
+import com.example.schoolsareboring.activity.attendance.ui.theme.LightRed
 import com.example.schoolsareboring.activity.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.firestore.handleGoogleSignInResult
@@ -210,8 +212,8 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .padding(top = 10.dp, end = 10.dp, start = 10.dp),
                 colors = ButtonDefaults.elevatedButtonColors(
-                    containerColor = Color.Blue,
-                    contentColor = Color.White
+                    containerColor = ButtonBlue/*Color.Blue*/,
+                    contentColor = Color.White,
                 )
             ) {
                 Text("Log in", textAlign = TextAlign.Center, fontSize = 16.sp)
@@ -249,7 +251,7 @@ fun LoginScreen(
                             .size(24.dp)
                     )
                     Text(
-                        "Sign up with Google",
+                        "Sign in with Google",
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(5.dp)
                     )

@@ -104,7 +104,7 @@ fun SelectUserType(modifier: Modifier = Modifier) {
                        shape = RoundedCornerShape(8.dp)
                    )
                    .clickable {
-                      context.startActivity(Intent(context, SignupActivity::class.java))
+                      context.startActivity(Intent(context, /*SignupActivity*/LoginActivity::class.java))
                    },
                contentAlignment = Alignment.Center,
 

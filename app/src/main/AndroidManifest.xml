@@ -25,6 +25,11 @@
         android:theme="@style/Theme.SchoolsAreBoring"
         tools:targetApi="31">
         <activity
+            android:name=".activity.results.AddResult"
+            android:exported="false"
+            android:label="@string/title_activity_add_result"
+            android:theme="@style/Theme.SchoolsAreBoring" />
+        <activity
             android:name=".activity.assignments.AssignmentActivity"
             android:exported="false"
             android:label="@string/title_activity_assignment"

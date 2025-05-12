@@ -20,4 +20,5 @@
     <string name="title_activity_add_timetable">AddTimetable</string>
     <string name="title_activity_assignment">AssignmentActivity</string>
     <string name="title_activity_add_assignment">AddAssignment</string>
+    <string name="title_activity_add_result">AddResult</string>
 </resources>
