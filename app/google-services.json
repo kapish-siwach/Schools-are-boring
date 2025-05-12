@@ -12,7 +12,28 @@
           "package_name": "com.example.schoolsareboring"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "701222988606-c5qqv1v3deo31en24idcdudks83p551q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.schoolsareboring",
+            "certificate_hash": "6291a60cb391bae35594966eb02d7507dc414f21"
+          }
+        },
+        {
+          "client_id": "701222988606-pmnrhj0477vs4ujdgp0guibd1u149obr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.schoolsareboring",
+            "certificate_hash": "cb280c653be9a0d8590899af1d29b3db8a7ae665"
+          }
+        },
+        {
+          "client_id": "701222988606-3iu4jlsu8ot6ib7k4i8eg98hp0c7sp5g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCO6hG4dJjWOALOJQk6B-_ha8a9N-Ia7tk"
@@ -20,7 +41,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "701222988606-3iu4jlsu8ot6ib7k4i8eg98hp0c7sp5g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

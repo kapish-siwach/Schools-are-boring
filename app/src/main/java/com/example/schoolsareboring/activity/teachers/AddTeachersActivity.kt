@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -71,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.schoolsareboring.BASE_URL
 import com.example.schoolsareboring.DOBDatePicker
 import com.example.schoolsareboring.GenderRadioButtons
 import com.example.schoolsareboring.R
@@ -82,6 +84,11 @@ import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.isEmailValid
 import com.example.schoolsareboring.isPhoneValid
 import com.example.schoolsareboring.models.TeachersData
+import com.example.schoolsareboring.viewmodels.MainViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AddTeachersActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,7 +116,7 @@ fun AddTeachersScreen(
 ) {
     val context = LocalContext.current
     val viewModel: FirestoreViewModel = viewModel()
-
+    val mainViewModel:MainViewModel=viewModel()
     // Use isLoading from the ViewModel
     val isLoading by remember { mutableStateOf(viewModel.isLoading) }
 
@@ -125,7 +132,8 @@ fun AddTeachersScreen(
     val emailError = remember { mutableStateOf("") }
     val phoneError = remember { mutableStateOf("") }
 
-    val selectedImageUri = remember { mutableStateOf(teachersData?.imageUri?.let { Uri.parse(it) }) }
+    val selectedImageUri = remember { mutableStateOf(teachersData?.imageUri?.let { Uri.parse(
+        /*BASE_URL+*/it) }) }
 
     val isEditMode = teachersData != null
     val isSubmitted = remember { mutableStateOf(if (isEditMode) "Update" else "Submit") }
@@ -261,35 +269,70 @@ fun AddTeachersScreen(
 
                         ElevatedButton(
                             onClick = {
-                                val teacher = TeachersData(
-                                    id = email.value,
-                                    name = name.value,
-                                    fatherName = fatherName.value,
-                                    motherName = motherName.value,
-                                    phone = phone.value,
-                                    email = email.value,
-                                    dob = dob.value,
-                                    gender = gender.value,
-                                    uniqueCode = uniqueCode.value,
-                                    subject = subject.value,
-                                    imageUri = selectedImageUri.value?.toString()
-                                )
 
-                                if (isEditMode) {
-                                    viewModel.updateTeacher(teacher)
-                                    Toast.makeText(context, "Teacher Updated.", Toast.LENGTH_SHORT).show()
-                                    (context as Activity).finish()
-                                } else {
-                                    viewModel.addTeacher(teacher)
-                                    Toast.makeText(context, "Teacher Added.", Toast.LENGTH_SHORT).show()
-                                    clearFields(
-                                        name, email, fatherName, motherName,
-                                        phone, dob, subject, uniqueCode, gender,
-                                        selectedImageUri
-                                    )
-                                    isSubmitted.value = "Add another"
-                                    (context as Activity).finish()
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    try{
+
+                                            var imageUrl = teachersData?.imageUri ?: ""
+                                            val uri = selectedImageUri.value
+
+                                            if (uri != null && uri.scheme == "content") {
+                                                val imageResponse = mainViewModel.uploadImage(context, uri)
+                                                if (imageResponse.isSuccessful) {
+                                                    imageUrl = imageResponse.body()?.url ?: ""
+                                                } else {
+                                                    withContext(Dispatchers.Main) {
+                                                        Toast.makeText(context, "Image upload failed", Toast.LENGTH_SHORT).show()
+                                                    }
+                                                }
+                                            }
+
+                                        val teacher = TeachersData(
+                                            id = email.value,
+                                            name = name.value,
+                                            fatherName = fatherName.value,
+                                            motherName = motherName.value,
+                                            phone = phone.value,
+                                            email = email.value,
+                                            dob = dob.value,
+                                            gender = gender.value,
+                                            uniqueCode = uniqueCode.value,
+                                            subject = subject.value,
+                                            imageUri = imageUrl
+                                        )
+                                        withContext(Dispatchers.Main) {
+                                            if (isEditMode) {
+                                                viewModel.updateTeacher(teacher)
+                                                Toast.makeText(
+                                                    context,
+                                                    "Teacher Updated.",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                (context as Activity).finish()
+                                            } else {
+                                                viewModel.addTeacher(teacher)
+                                                Toast.makeText(
+                                                    context,
+                                                    "Teacher Added.",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                clearFields(
+                                                    name, email, fatherName, motherName,
+                                                    phone, dob, subject, uniqueCode, gender,
+                                                    selectedImageUri
+                                                )
+                                                isSubmitted.value = "Add another"
+                                                (context as Activity).finish()
+                                            }
+                                        }
+                                    }catch (e:Exception){
+                                        Log.e("AddTeacherActivity", "Error: $e")
+                                        withContext(Dispatchers.Main) {
+                                            Toast.makeText(context, "Error uploading Teacher data", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
                                 }
+
                             },
                             enabled = isFormValid && !isLoading,
                             modifier = Modifier.fillMaxWidth()

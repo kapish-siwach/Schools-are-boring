@@ -34,6 +34,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -56,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.schoolsareboring.BASE_URL
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.activity.student.AddStudentActivity
@@ -83,14 +85,14 @@ class Teachers : ComponentActivity() {
 @Composable
 fun TeacherCard(teacher: TeachersData) {
     val context= LocalContext.current
-    val imageUri = teacher.imageUri?.let { Uri.parse(it) }
+    val imageUri = teacher.imageUri?.let { Uri.parse(/*BASE_URL+*/it) }
     val preferenceManager =PreferenceManager(context)
     val viewModel:FirestoreViewModel= viewModel()
-    Card(
+    OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
-        onClick = { }
+        /*onClick = { }*/
     ) {
 
         Row(modifier = Modifier
@@ -116,13 +118,13 @@ fun TeacherCard(teacher: TeachersData) {
                     putExtra("TeacherData", teacher)
                 }
                     context.startActivity(intent)
-                }, modifier = Modifier.padding(vertical = 10.dp)) {
+                }, modifier = Modifier.padding(vertical = 5.dp)) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit",Modifier.size(30.dp))
                 }
                 if (preferenceManager.getData("userType")=="admin") {
                     IconButton(
                         onClick = { viewModel.deleteTeacher(teacher.id) },
-                        modifier = Modifier.padding(vertical = 10.dp),
+                        modifier = Modifier.padding(vertical = 5.dp),
                         colors = IconButtonDefaults.iconButtonColors(contentColor = Color.Red)
                     ) {
                         Icon(

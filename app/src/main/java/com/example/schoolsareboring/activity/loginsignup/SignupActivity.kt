@@ -146,7 +146,7 @@ fun Signup(modifier: Modifier = Modifier,firestoreVIewModal: FirestoreViewModel=
                 text = "Sign Up",
                 modifier = modifier.padding(start=20.dp),
                 textAlign = TextAlign.Center,
-                color = Color.Black,
+               /* color = Color.Black,*/
                 fontSize = 26.sp,
                 fontFamily = FontFamily.SansSerif
             )

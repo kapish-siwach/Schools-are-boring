@@ -38,8 +38,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,9 +59,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.schoolsareboring.BASE_URL
 import com.example.schoolsareboring.viewmodels.MainViewModel
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
+import com.example.schoolsareboring.activity.assignments.AssignmentActivity
 import com.example.schoolsareboring.activity.attendance.Attendance
 import com.example.schoolsareboring.activity.loginsignup.UsertypeActivity
 import com.example.schoolsareboring.activity.myai.MyAi
@@ -134,10 +138,10 @@ fun MainActivityScreen(preferenceManager: PreferenceManager) {
 
             if (userType == "student") {
                 val student: StudentData? = preferenceManager.getUserData("userData")
-                imageUri = student?.imageUri?.let { Uri.parse(it) }
+                imageUri = student?.imageUri?.let { Uri.parse(/*BASE_URL+*/it) }
             } else if (userType == "teacher") {
                 val teacher: TeachersData? = preferenceManager.getUserData("userData")
-                imageUri = teacher?.imageUri?.let { Uri.parse(it) }
+                imageUri = teacher?.imageUri?.let { Uri.parse(/*BASE_URL+*/it) }
             }
 
             Row(modifier = Modifier.clickable(enabled = userType!="admin", onClick = {
@@ -163,7 +167,6 @@ fun MainActivityScreen(preferenceManager: PreferenceManager) {
                     )
                     Text(
                         preferenceManager.getData("name"),
-                        color = Color.Black,
                         fontWeight = FontWeight.Bold,
                         fontSize = 22.sp
                     )
@@ -249,7 +252,7 @@ fun MainContent() {
             modifier = Modifier.fillMaxHeight()
         ) {
             items(screenItems) { item ->
-                Card(
+                OutlinedCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1f)
@@ -261,7 +264,7 @@ fun MainContent() {
                                 "attendance" -> context.startActivity(Intent(context, Attendance::class.java))
                                 "syllabus" -> context.startActivity(Intent(context, Syllabus::class.java))
                                 "time_table" -> context.startActivity(Intent(context, TimeTable::class.java))
-                                "assignments" -> /*context.startActivity(Intent(context, AssignmentsActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
+                                "assignments" -> context.startActivity(Intent(context, AssignmentActivity::class.java))
                                 "exam" -> /*context.startActivity(Intent(context, ExamActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "result" -> /*context.startActivity(Intent(context, ResultsActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "fees" -> /*context.startActivity(Intent(context, FeesActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
@@ -288,7 +291,7 @@ fun MainContent() {
                         Text(
                             text = item.title,
                             fontSize = 14.sp,
-                            color = Color.Black,
+                            /*color = Color.Black,*/
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Medium
                         )

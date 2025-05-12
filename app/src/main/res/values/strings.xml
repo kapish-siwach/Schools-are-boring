@@ -18,4 +18,6 @@
     <string name="title_activity_result">Result</string>
     <string name="title_activity_show_results">ShowResults</string>
     <string name="title_activity_add_timetable">AddTimetable</string>
+    <string name="title_activity_assignment">AssignmentActivity</string>
+    <string name="title_activity_add_assignment">AddAssignment</string>
 </resources>

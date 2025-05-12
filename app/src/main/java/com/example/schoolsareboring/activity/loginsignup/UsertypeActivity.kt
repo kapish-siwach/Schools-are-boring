@@ -78,7 +78,7 @@ fun SelectUserType(modifier: Modifier = Modifier) {
            Spacer(Modifier.height(10.dp))
            Text("Select User Type",
                fontSize = 32.sp,
-               color=Color.Black,
+              /* color=Color.Black,*/
                fontWeight = FontWeight.Bold,
                modifier = Modifier.padding(top=10.dp))
 

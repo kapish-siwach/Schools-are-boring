@@ -65,6 +65,7 @@ import java.util.Date
 
 val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
 val currentDate: String =simpleDateFormat.format(Date())
+const val BASE_URL="http://192.168.29.187:8000"
 
 @Composable
 fun UserInputField(

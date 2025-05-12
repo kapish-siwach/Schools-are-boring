@@ -6,6 +6,7 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.schoolsareboring.BASE_URL
 import com.example.schoolsareboring.ClassDropdownPicker
 import com.example.schoolsareboring.DOBDatePicker
 import com.example.schoolsareboring.GenderRadioButtons
@@ -56,6 +58,11 @@ import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.isEmailValid
 import com.example.schoolsareboring.isPhoneValid
 import com.example.schoolsareboring.models.StudentData
+import com.example.schoolsareboring.viewmodels.MainViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class  AddStudentActivity : ComponentActivity() {
@@ -77,8 +84,9 @@ class  AddStudentActivity : ComponentActivity() {
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddStudent(studentData: StudentData? = null, isEditable:Boolean,firstT:Boolean) {
+fun AddStudent(studentData: StudentData? = null, isEditable: Boolean, firstT: Boolean) {
     val context = LocalContext.current
+    val mainViewModel: MainViewModel = viewModel()
 
     val name = remember { mutableStateOf(studentData?.name ?: "") }
     val email = remember { mutableStateOf(studentData?.email ?: "") }
@@ -89,29 +97,16 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean,firstT:Boole
     val rollNo = remember { mutableStateOf(studentData?.rollNo ?: "") }
     val phone = remember { mutableStateOf(studentData?.phone ?: "") }
     val gender = remember { mutableStateOf(studentData?.gender ?: "") }
-    val addImage =R.drawable.social
-    val selectedImageUri = remember { mutableStateOf(studentData?.imageUri?.let { Uri.parse(it) }) }
-
+    val addImage = R.drawable.social
+    val selectedImageUri = remember { mutableStateOf(studentData?.imageUri?.let { Uri.parse(/*BASE_URL+*/it) }) }
     val isEditMode = studentData != null
     val isSubmitted = remember { mutableStateOf(if (isEditMode) "Update" else "Submit") }
-    val title= remember { mutableStateOf( if (!isEditable) "Profile" else if(isEditMode) "Update Student" else "Add New Student") }
-
-//    val name = remember { mutableStateOf("") }
-//    val email = remember { mutableStateOf("") }
-//    val regNo = remember { mutableStateOf("") }
-//    val fatherName = remember { mutableStateOf("") }
-//    val motherName = remember { mutableStateOf("") }
-//    val dob = remember { mutableStateOf("") }
-//    val clazz = remember { mutableStateOf("") }
-//    val rollNo = remember { mutableStateOf("") }
-//    val phone = remember { mutableStateOf("") }
-//    val gender = remember { mutableStateOf("Male") }
+    val title = remember { mutableStateOf(if (!isEditable) "Profile" else if (isEditMode) "Update Student" else "Add New Student") }
 
     val viewModel: FirestoreViewModel = viewModel()
     val rollNoError = remember { mutableStateOf("") }
     val emailError = remember { mutableStateOf("") }
     val phoneError = remember { mutableStateOf("") }
-
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -125,7 +120,6 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean,firstT:Boole
         }
     }
 
-
     val isFormValid by derivedStateOf {
         name.value.isNotBlank() &&
                 fatherName.value.isNotBlank() &&
@@ -137,16 +131,15 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean,firstT:Boole
                 email.value.isNotBlank() &&
                 emailError.value.isBlank() &&
                 phoneError.value.isBlank() &&
-                selectedImageUri.value!=null
+                selectedImageUri.value != null
     }
-
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(title.value)  },
+                title = { Text(title.value) },
                 navigationIcon = {
-                   IconButton(onClick = {(context as Activity).finish() }){
+                    IconButton(onClick = { (context as Activity).finish() }) {
                         Icon(
                             Icons.AutoMirrored.Default.KeyboardArrowLeft,
                             contentDescription = "Back",
@@ -168,16 +161,6 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean,firstT:Boole
                     .fillMaxWidth()
                     .padding(top = 20.dp)
             ) {
-               /* Text(
-                    text = "Please fill all details carefully!",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold
-                )*/
-
-                Spacer(Modifier.height(10.dp))
-
                 Column(Modifier.padding(start = 15.dp, end = 15.dp)) {
 
                     FilledIconButton(
@@ -264,33 +247,37 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean,firstT:Boole
                             emailError.value = if (isEmailValid(it)) "" else "Invalid email format"
                         }
                     )
-                    if (!firstT){
-                        Text("Email not editable later.", color = MaterialTheme.colorScheme.tertiary, modifier = Modifier.padding(start = 10.dp), fontSize = 12.sp)
+                    if (!firstT) {
+                        Text(
+                            "Email not editable later.",
+                            color = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.padding(start = 10.dp),
+                            fontSize = 12.sp
+                        )
                     }
                     if (emailError.value.isNotEmpty()) {
                         Text(emailError.value, color = MaterialTheme.colorScheme.error)
                     }
 
-
                     // DOB Picker
                     DOBDatePicker(
                         dob = dob.value,
                         onDateSelected = { dob.value = it },
-                        enabled=isEditable
+                        enabled = isEditable
                     )
 
                     // Gender Radio Buttons
                     GenderRadioButtons(
                         selectedGender = gender.value,
                         onGenderSelected = { gender.value = it },
-                        enabled=isEditable
+                        enabled = isEditable
                     )
 
                     // Class Picker
                     ClassDropdownPicker(
                         selectedClass = clazz.value,
                         onClassSelected = { clazz.value = it },
-                        enabled=isEditable
+                        enabled = isEditable
                     )
 
                     // Roll Number
@@ -305,13 +292,9 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean,firstT:Boole
                         Text(rollNoError.value, color = MaterialTheme.colorScheme.error)
                     }
 
-
-
                     Spacer(Modifier.height(10.dp))
 
-//                    Buttons
-
-                    if(isEditable){
+                    if (isEditable) {
                         Row(
                             Modifier
                                 .fillMaxWidth()
@@ -319,8 +302,6 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean,firstT:Boole
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
-
-
                             ElevatedButton(
                                 onClick = {
                                     viewModel.checkStudentRollNo(
@@ -330,51 +311,61 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean,firstT:Boole
 
                                         val isChangingRollOrClass =
                                             studentData?.clazz != clazz.value || studentData.rollNo != rollNo.value
+
                                         if (!isEditMode && rollNoExist || (isEditMode && isChangingRollOrClass && rollNoExist)) {
                                             rollNoError.value =
                                                 "Roll no already exists in this class!"
                                         } else {
                                             rollNoError.value = ""
-                                            val student = StudentData(
-                                                regNo = "",
-                                                name = name.value,
-                                                fatherName = fatherName.value,
-                                                motherName = motherName.value,
-                                                phone = phone.value,
-                                                email = email.value,
-                                                dob = dob.value,
-                                                gender = gender.value,
-                                                clazz = clazz.value,
-                                                rollNo = rollNo.value,
-                                                imageUri = selectedImageUri.value?.toString()
-                                                    ?: studentData?.imageUri
-                                            )
 
-                                            if (isEditMode) {
-                                                viewModel.addStudent(student)
-                                                Toast.makeText(
-                                                    context,
-                                                    "Student Updated.",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                                (context as Activity).finish()
-                                            } else {
-                                                viewModel.addStudent(student)
-                                                Toast.makeText(context,"Student Added.",Toast.LENGTH_SHORT).show()
-                                                (context as Activity).finish()
-                                                clearFields(
-                                                    name,
-                                                    email,
-                                                    fatherName,
-                                                    motherName,
-                                                    phone,
-                                                    dob,
-                                                    clazz,
-                                                    rollNo,
-                                                    gender,
-                                                    selectedImageUri
-                                                )
-                                                isSubmitted.value = "Add other"
+                                            CoroutineScope(Dispatchers.IO).launch {
+                                                try {
+                                                    var imageUrl = studentData?.imageUri ?: ""
+                                                    val uri = selectedImageUri.value
+
+                                                    if (uri != null && uri.scheme == "content") {
+                                                        val imageResponse = mainViewModel.uploadImage(context, uri)
+                                                        if (imageResponse.isSuccessful) {
+                                                            imageUrl = imageResponse.body()?.url ?: ""
+                                                        } else {
+                                                            withContext(Dispatchers.Main) {
+                                                                Toast.makeText(context, "Image upload failed", Toast.LENGTH_SHORT).show()
+                                                            }
+                                                        }
+                                                    }
+
+
+                                                    val student = StudentData(
+                                                        regNo = "",
+                                                        name = name.value,
+                                                        fatherName = fatherName.value,
+                                                        motherName = motherName.value,
+                                                        phone = phone.value,
+                                                        email = email.value,
+                                                        dob = dob.value,
+                                                        gender = gender.value,
+                                                        clazz = clazz.value,
+                                                        rollNo = rollNo.value,
+                                                        imageUri = imageUrl
+                                                    )
+
+                                                    viewModel.addStudent(student)
+
+                                                    withContext(Dispatchers.Main) {
+                                                        Toast.makeText(
+                                                            context,
+                                                            if (isEditMode) "Student Updated." else "Student Added.",
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                        (context as Activity).finish()
+                                                    }
+
+                                                } catch (e: Exception) {
+                                                    Log.e("AddStudentActivity", "Error: $e")
+                                                    withContext(Dispatchers.Main) {
+                                                        Toast.makeText(context, "Error uploading student data", Toast.LENGTH_SHORT).show()
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -389,19 +380,15 @@ fun AddStudent(studentData: StudentData? = null, isEditable:Boolean,firstT:Boole
                                     modifier = Modifier.padding(5.dp)
                                 )
                             }
-
                         }
-                    }else {
+                    } else {
                         Text(
                             "Please contact admin to edit your profile.",
                             color = Color.Red,
                             fontSize = 18.sp,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(
-                                    horizontal = 10.dp,
-                                    5.dp
-                                )
+                                .padding(horizontal = 10.dp, vertical = 5.dp)
                         )
                     }
                 }

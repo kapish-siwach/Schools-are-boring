@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -49,7 +50,6 @@ class MyAi : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SchoolsAreBoringTheme {
-
                     MyAiScreen(
                         modifier = Modifier
                     )
@@ -86,9 +86,6 @@ fun MyAiScreen(modifier: Modifier = Modifier) {
         viewModel.clearResponse()
     }
 
-
-
-    Column(modifier.fillMaxSize().imePadding()) {
         Scaffold (
             topBar = {
                 TopAppBar(
@@ -137,7 +134,7 @@ fun MyAiScreen(modifier: Modifier = Modifier) {
                         }
                     }
                 }
-            }, modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
+            }, modifier = Modifier.fillMaxWidth()/*.align(Alignment.CenterHorizontally)*/,
             content = {
                     innerPadding->
                 Column(modifier.padding(innerPadding).fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
@@ -145,7 +142,7 @@ fun MyAiScreen(modifier: Modifier = Modifier) {
                 }
             })
     }
-}
+
 
 
 @Preview(showBackground = true)

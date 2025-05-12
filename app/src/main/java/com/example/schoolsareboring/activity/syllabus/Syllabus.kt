@@ -27,6 +27,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -131,7 +132,7 @@ fun SyllabusCard(syllabus: SyllabusModal, session: PreferenceManager,viewModel:F
     val context = LocalContext.current
     Column {
 
-        Card(
+        ElevatedCard(
             modifier = Modifier
                 .padding(10.dp)
                 .fillMaxSize()

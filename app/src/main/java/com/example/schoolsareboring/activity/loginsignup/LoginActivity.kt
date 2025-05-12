@@ -123,7 +123,7 @@ fun LoginScreen(
                 text = "Log in",
                 modifier = modifier.padding(start = 20.dp),
                 textAlign = TextAlign.Start,
-                color = Color.Black,
+               /* color = Color.Black,*/
                 fontSize = 26.sp,
                 fontFamily = FontFamily.SansSerif
             )

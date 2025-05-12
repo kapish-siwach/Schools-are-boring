@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.schoolsareboring.BASE_URL
 import com.example.schoolsareboring.ClassFilter
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
@@ -156,15 +157,16 @@ fun StudentsScreen() {
 @Composable
 fun StudentCard(student: StudentData) {
     val context= LocalContext.current
-    val imageUri = student.imageUri?.let { Uri.parse(it) }
+    val imageUri = /*BASE_URL+*/student.imageUri?.let { Uri.parse(it) }
     val userViewModel:FirestoreViewModel= viewModel()
     val preferenceManager=PreferenceManager(context)
 
-    Card(
+
+    OutlinedCard (
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
-        onClick = {}
+        /*onClick = {}*/
     ) {
 
         Row(modifier = Modifier
@@ -204,7 +206,7 @@ fun StudentCard(student: StudentData) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit",Modifier.size(30.dp))
                 }
                 if (preferenceManager.getData("userType")=="admin") {
-                    IconButton(
+                    /*IconButton(
                         onClick = { userViewModel.deleteStudent(student.regNo) },
                         modifier = Modifier.padding(vertical = 10.dp),
                         colors = IconButtonDefaults.iconButtonColors(contentColor = Color.Red)
@@ -214,7 +216,7 @@ fun StudentCard(student: StudentData) {
                             contentDescription = "Delete",
                             Modifier.size(30.dp)
                         )
-                    }
+                    }*/
                 }
             }
         }

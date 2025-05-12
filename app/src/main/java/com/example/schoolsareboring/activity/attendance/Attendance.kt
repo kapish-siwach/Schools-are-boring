@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.schoolsareboring.BASE_URL
 import com.example.schoolsareboring.ClassFilter
 import com.example.schoolsareboring.DateSelector
 import com.example.schoolsareboring.activity.attendance.ui.theme.LightGreen
@@ -76,9 +77,15 @@ fun AttendanceScreen() {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Attendance")
-                Text(sDate.value, fontSize = 16.sp, modifier = Modifier.padding(end = 5.dp))
-                } },
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Attendance")
+                        Text(sDate.value, fontSize = 16.sp, modifier = Modifier.padding(end = 5.dp))
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = { (context as Activity).finish() }) {
                         Icon(
@@ -98,21 +105,23 @@ fun AttendanceScreen() {
         ) {
 
 
-          /*  DateSelector(
-                sDate = sDate.value,
-                onDateSelected = { sDate.value = it },
-                enabled = true
-            )*/
+            /*  DateSelector(
+                  sDate = sDate.value,
+                  onDateSelected = { sDate.value = it },
+                  enabled = true
+              )*/
             Row(verticalAlignment = Alignment.CenterVertically) {
 
                 ClassFilter(
                     classFilter.value,
                     onClassSelected = { classFilter.value = it },
-                    modifier = Modifier.fillMaxWidth().weight(0.1f)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(0.1f)
                 )
 
                 TextButton(onClick = {
-                    context.startActivity(Intent(context,ShowAttendance::class.java))
+                    context.startActivity(Intent(context, ShowAttendance::class.java))
                 }, border = BorderStroke(1.dp, color = Color.Black)) {
                     Text("History")
                 }
@@ -136,10 +145,10 @@ fun AttendanceScreen() {
 
 @Composable
 fun StudentAttendanceCard(student: StudentData, context: Context, viewModel: FirestoreViewModel) {
-    val imageUri = student.imageUri?.let { Uri.parse(it) }
+    val imageUri = student.imageUri?.let { Uri.parse(/*BASE_URL +*/ it) }
     val selectedMark = viewModel.attendanceSelections[student.regNo]
 
-    Card(
+    OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
@@ -149,8 +158,7 @@ fun StudentAttendanceCard(student: StudentData, context: Context, viewModel: Fir
             Row(
                 modifier = Modifier
                     .padding(5.dp)
-                    .fillMaxWidth()
-                    ,
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AsyncImage(

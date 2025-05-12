@@ -13,26 +13,26 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class GeminiViewModel :ViewModel() {
-    private val _geminiResponse =MutableLiveData<GeminiResponse>()
-    val geminiResponse:LiveData<GeminiResponse> get()=_geminiResponse
+class GeminiViewModel : ViewModel() {
+    private val _geminiResponse = MutableLiveData<GeminiResponse>()
+    val geminiResponse: LiveData<GeminiResponse> get() = _geminiResponse
 
-    private val _error=MutableLiveData<String>()
-    val error:LiveData<String> get() = _error
+    private val _error = MutableLiveData<String>()
+    val error: LiveData<String> get() = _error
 
-    fun generateContent(apiKey:String,text:String){
-        val requestBody=GeminiRequest(
-            contents = listOf(Content(parts = listOf(Part(text=text))))
+    fun generateContent(apiKey: String, text: String) {
+        val requestBody = GeminiRequest(
+            contents = listOf(Content(parts = listOf(Part(text = text))))
         )
-        GeminiInstance.apiService.generateContent(apiKey,requestBody)
-            .enqueue(object: Callback<GeminiResponse> {
+        GeminiInstance.apiService.generateContent(apiKey, requestBody)
+            .enqueue(object : Callback<GeminiResponse> {
                 override fun onResponse(
                     call: Call<GeminiResponse>,
                     response: Response<GeminiResponse>
                 ) {
-                    if (response.isSuccessful){
+                    if (response.isSuccessful) {
                         _geminiResponse.postValue(response.body())
-                    }else{
+                    } else {
                         _error.postValue("Error: ${response.code()} - ${response.message()}")
                     }
                 }
@@ -40,8 +40,8 @@ class GeminiViewModel :ViewModel() {
                 override fun onFailure(call: Call<GeminiResponse>, t: Throwable) {
                     _error.postValue("Failure: ${t.message}")
                 }
-                })
-            }
+            })
+    }
 
     @SuppressLint("NullSafeMutableLiveData")
     fun clearResponse() {
