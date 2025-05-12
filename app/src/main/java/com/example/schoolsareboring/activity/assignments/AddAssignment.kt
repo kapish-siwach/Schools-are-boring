@@ -2,12 +2,9 @@ package com.example.schoolsareboring.activity.assignments
 
 import android.app.Activity
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.transition.Explode
 import android.transition.Fade
 import android.transition.Slide
 import android.view.Window
-import android.widget.EditText
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -26,7 +23,6 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -40,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.room.Update
 import com.example.schoolsareboring.ClassDropdownPicker
 import com.example.schoolsareboring.UserInputField
 import com.example.schoolsareboring.activity.assignments.ui.theme.SchoolsAreBoringTheme
@@ -57,9 +54,11 @@ class AddAssignment : ComponentActivity() {
 
             exitTransition = Fade()
         }
+        val assignmentData=intent.getSerializableExtra("allData") as? SyllabusModal
+        val editable=intent.getBooleanExtra("isEditing",false)
         setContent {
             SchoolsAreBoringTheme {
-                AddAssignmentScreen()
+                AddAssignmentScreen(assignmentData,editable)
             }
         }
 
@@ -68,10 +67,10 @@ class AddAssignment : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddAssignmentScreen() {
+fun AddAssignmentScreen(assignmentData: SyllabusModal?, editable: Boolean) {
     val context = LocalContext.current
-    val clazz = remember { mutableStateOf("") }
-    val description = remember { mutableStateOf("") }
+    val clazz = remember { mutableStateOf(assignmentData?.clazz ?: "") }
+    val description = remember { mutableStateOf(assignmentData?.fileUrl ?: "") }
     val viewModel : FirestoreViewModel = viewModel()
 
     Scaffold(
@@ -123,7 +122,7 @@ fun AddAssignmentScreen() {
             }, modifier = Modifier.align(Alignment.CenterHorizontally)
             , enabled = clazz.value.isNotEmpty()&&description.value.isNotEmpty()) {
                 Text(
-                    "Submit",
+                    text = if (editable) "Update" else "Submit",
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
                     modifier = Modifier.padding(2.dp)

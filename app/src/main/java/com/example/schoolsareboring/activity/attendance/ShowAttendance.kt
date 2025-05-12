@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -103,15 +104,16 @@ fun AttendanceTable(
             Row(Modifier.horizontalScroll(scrollState)) {
                 Row(Modifier.padding(vertical = 4.dp)) {
                     Text("Name", Modifier.width(100.dp), fontWeight = FontWeight.Bold)
-                    Text("Reg no.", Modifier.width(100.dp), fontWeight = FontWeight.SemiBold)
-                    Text("Class", Modifier.width(100.dp), fontWeight = FontWeight.SemiBold)
+                    Text("Reg no.", Modifier.width(100.dp), fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
+                    Text("Class", Modifier.width(100.dp), fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
                     allDates.forEach { date ->
                         Text(
                             text = date.takeLast(5),
                             modifier = Modifier.width(60.dp),
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
-                            softWrap = false
+                            softWrap = false,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
@@ -123,8 +125,8 @@ fun AttendanceTable(
             Row(Modifier.horizontalScroll(scrollState)) {
                 Row(Modifier.padding(vertical = 4.dp)) {
                     Text(student.name, Modifier.width(100.dp), fontWeight = FontWeight.SemiBold)
-                    Text(student.regNo, Modifier.width(100.dp),fontWeight = FontWeight.Black)
-                    Text(student.clazz, Modifier.width(100.dp),fontWeight = FontWeight.Black)
+                    Text(student.regNo, Modifier.width(100.dp),fontWeight = FontWeight.Black, textAlign = TextAlign.Center)
+                    Text(student.clazz, Modifier.width(100.dp),fontWeight = FontWeight.Black, textAlign = TextAlign.Center)
                     allDates.forEach { date ->
                         val markChar = when (attendance[date]) {
                             AttendanceMark.PRESENT -> "P"
@@ -144,7 +146,8 @@ fun AttendanceTable(
                             fontWeight = FontWeight.SemiBold,
                             color = color,
                             maxLines = 1,
-                            softWrap = false
+                            softWrap = false,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }

@@ -206,7 +206,7 @@ fun StudentCard(student: StudentData) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit",Modifier.size(30.dp))
                 }
                 if (preferenceManager.getData("userType")=="admin") {
-                    /*IconButton(
+                    IconButton(
                         onClick = { userViewModel.deleteStudent(student.regNo) },
                         modifier = Modifier.padding(vertical = 10.dp),
                         colors = IconButtonDefaults.iconButtonColors(contentColor = Color.Red)
@@ -216,7 +216,7 @@ fun StudentCard(student: StudentData) {
                             contentDescription = "Delete",
                             Modifier.size(30.dp)
                         )
-                    }*/
+                    }
                 }
             }
         }

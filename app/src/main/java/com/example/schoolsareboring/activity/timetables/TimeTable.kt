@@ -68,9 +68,11 @@ fun TimeTableScreen(modifier: Modifier = Modifier) {
               }  ) },
 //            floatingActionButtonPosition = FabPosition.EndOverlay,
             floatingActionButton = {
+                if(session.getData("userType")!="student"){
                 FloatingActionButton(onClick = {context.startActivity(Intent(context,AddTimetable::class.java))}) {
                     Icon(Icons.Default.Add, contentDescription = "add")
                 }
+                    }
             }
             ) {
             innerPadding->
