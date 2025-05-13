@@ -91,6 +91,7 @@ fun LoginScreen(
             onSuccess = {
                 Toast.makeText(context, "Signed in successfully!", Toast.LENGTH_SHORT).show()
                 context.startActivity(Intent(context, MainActivity::class.java))
+                (context as Activity).finish()
             },
             onFailure = {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -201,6 +202,7 @@ fun LoginScreen(
                                 preferenceManager.saveData("email", user.email ?: "")
                                 preferenceManager.saveData("userType", user.role ?: "admin")
                                 context.startActivity(Intent(context, MainActivity::class.java))
+                                (context as Activity).finish()
                                 clearEntries(email, password)
                             } else {
                                 errorMsg.value = "Invalid email or password!"
@@ -212,7 +214,7 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .padding(top = 10.dp, end = 10.dp, start = 10.dp),
                 colors = ButtonDefaults.elevatedButtonColors(
-                    containerColor = ButtonBlue/*Color.Blue*/,
+                    containerColor = ButtonBlue,
                     contentColor = Color.White,
                 )
             ) {
@@ -231,9 +233,10 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(8.dp))
             Text("Or", color = Color.Gray, fontSize = 12.sp)
             Spacer(modifier = Modifier.height(10.dp))
-
+            val googlePresses= remember { mutableStateOf(false) }
             TextButton(
                 onClick = {
+                    googlePresses.value=true
                     val signInIntent = googleSignInClient.signInIntent
                     launcher.launch(signInIntent)
                 },
@@ -243,6 +246,7 @@ fun LoginScreen(
                     .padding(start = 20.dp, end = 20.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
+
                     Image(
                         painter = painterResource(id = R.drawable.google),
                         contentDescription = "Google logo",
@@ -250,11 +254,15 @@ fun LoginScreen(
                             .padding(5.dp)
                             .size(24.dp)
                     )
-                    Text(
-                        "Sign in with Google",
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(5.dp)
-                    )
+                    if (googlePresses.value){
+                    CircularProgressIndicator(modifier.size(24.dp).padding(5.dp))
+                    } else {
+                        Text(
+                            "Sign in with Google",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(5.dp)
+                        )
+                    }
                 }
             }
 

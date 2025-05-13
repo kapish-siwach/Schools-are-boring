@@ -40,6 +40,7 @@ import androidx.room.Update
 import com.example.schoolsareboring.ClassDropdownPicker
 import com.example.schoolsareboring.UserInputField
 import com.example.schoolsareboring.activity.assignments.ui.theme.SchoolsAreBoringTheme
+import com.example.schoolsareboring.currentDate
 import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.models.SyllabusModal
 
@@ -112,12 +113,14 @@ fun AddAssignmentScreen(assignmentData: SyllabusModal?, editable: Boolean) {
             ElevatedButton(onClick = {
                 val assignment=SyllabusModal(
                     clazz = clazz.value,
-                    fileUrl = description.value
+                    fileUrl = description.value,
+                    date = currentDate
                 )
                 viewModel.addAssignment(assignment)
                 (context as Activity).finish()
                 clazz.value=""
                 description.value=""
+
 
             }, modifier = Modifier.align(Alignment.CenterHorizontally)
             , enabled = clazz.value.isNotEmpty()&&description.value.isNotEmpty()) {

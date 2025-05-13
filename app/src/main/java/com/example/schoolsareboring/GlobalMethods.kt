@@ -2,9 +2,12 @@ package com.example.schoolsareboring
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.content.Intent
+import android.net.Uri
 import android.widget.DatePicker
 import android.widget.TextView
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -16,7 +19,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,16 +30,22 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -46,18 +58,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.models.ChatItem
+import com.example.schoolsareboring.models.SyllabusModal
 import com.example.schoolsareboring.models.UserType
 import io.noties.markwon.Markwon
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -408,7 +424,7 @@ fun ClassDropdownPicker(selectedClass: String, onClassSelected: (String) -> Unit
             value = selectedClass,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Class *") },
+            label = { Text("Class") },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded)
             },
@@ -509,3 +525,131 @@ fun MessageList(messages: List<ChatItem>) {
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddDetailsBottomSheet(
+    scope: CoroutineScope,
+    parent: String,
+    sheetState: SheetState,
+    showBottomSheet: MutableState<Boolean>
+) {
+    val context= LocalContext.current
+    val clazz= remember { mutableStateOf("") }
+    val fileUrl= remember { mutableStateOf("") }
+    val session= PreferenceManager(context)
+    val viewModel: FirestoreViewModel = viewModel()
+
+    Column(Modifier.padding(10.dp)) {
+        Column(modifier=Modifier.padding(horizontal = 10.dp, vertical = 10.dp).fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally) {
+            ClassDropdownPicker(selectedClass = clazz.value,
+                onClassSelected = {clazz.value=it},
+                enabled = true)
+
+            Spacer(modifier=Modifier.height(15.dp))
+
+            UserInputField(label = "Paste drive url of file", value = fileUrl, onValueChange = {fileUrl.value = it}, endIcon = Icons.Default.Add)
+
+            Spacer(modifier=Modifier.height(15.dp))
+
+            ElevatedButton(onClick = {
+                val data = SyllabusModal(
+                    clazz=clazz.value,
+                    fileUrl = fileUrl.value,
+                    date = currentDate
+                )
+                when(parent){
+                    "resultActivity" -> viewModel.addResults(data)
+                    "syllabusActivity" -> viewModel.addSyllabus(data)
+                    "timetableActivity" -> viewModel.addTimetable(data)
+                }
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible){
+                        showBottomSheet.value=false
+                    }
+                }
+                Toast.makeText(context,"Added",Toast.LENGTH_SHORT).show()
+            }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                enabled = fileUrl.value.trim().isNotEmpty() && clazz.value.trim().isNotEmpty()
+            ) {
+                Text(
+                    "Submit",
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 18.sp,
+                    modifier = Modifier.padding(5.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun OutlinedFileCard(
+    syllabus: SyllabusModal,
+    session: PreferenceManager,
+    viewModel: FirestoreViewModel,
+    parent: String
+) {
+
+    val context = LocalContext.current
+    Column {
+
+        OutlinedCard (
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(5.dp)
+                    .fillMaxSize()
+                    .clickable {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(syllabus.fileUrl))
+                        try {
+                            context.startActivity(intent)
+                        }catch (e:Exception){
+                            Toast.makeText(context,"Error opening file.",Toast.LENGTH_SHORT).show()
+                        }
+
+                    },
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "Class ${syllabus.clazz}")
+
+                Image(
+                    painter = painterResource(id = R.drawable.book),
+                    contentDescription = "download",
+                    Modifier
+                        .height(70.dp)
+                        .padding(5.dp)
+                )
+            }
+        }
+        if (session.getData("userType")=="admin") {
+            IconButton(
+                onClick = {
+                    when(parent){
+                        "syllabus"-> viewModel.deleteSyllabus(syllabus.clazz)
+                        "timetable"-> viewModel.deleteTimetable(syllabus.clazz)
+                        "results"-> viewModel.deleteResults(syllabus.clazz)
+                    }
+                     },
+                modifier = Modifier.offset( y = (-35).dp).size(35.dp)
+                    .align(Alignment.End),
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = Color.White
+                )
+            ) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "delete",
+                    modifier = Modifier.size(35.dp).padding(2.dp),
+                    colorResource(R.color.red)
+                )
+            }
+        }
+    }
+}
+

@@ -139,7 +139,6 @@ fun StudentsScreen() {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
             if (filteredStudents.isEmpty()) {
-
                 Text("No students found.", modifier = Modifier.padding(16.dp))
             } else {
 

@@ -91,27 +91,21 @@ fun AssignmentScreen() {
         selectedClass.value == "All" || it.clazz == selectedClass.value
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Assignments") },
-                navigationIcon = {
-                    IconButton(onClick = { (context as Activity).finish() }) {
-                        Icon(Icons.AutoMirrored.Default.KeyboardArrowLeft, "back")
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            if (!isStudent) {
-                FloatingActionButton(onClick = {
-                    context.startActivity(Intent(context, AddAssignment::class.java))
-                }) {
-                    Icon(Icons.Default.Add, "add")
-                }
+    Scaffold(topBar = {
+        TopAppBar(title = { Text("Assignments") }, navigationIcon = {
+            IconButton(onClick = { (context as Activity).finish() }) {
+                Icon(Icons.AutoMirrored.Default.KeyboardArrowLeft, "back")
+            }
+        })
+    }, floatingActionButton = {
+        if (!isStudent) {
+            FloatingActionButton(onClick = {
+                context.startActivity(Intent(context, AddAssignment::class.java))
+            }) {
+                Icon(Icons.Default.Add, "add")
             }
         }
-    ) { innerPadding ->
+    }) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             if (!isStudent) {
                 ClassFilter(
@@ -139,10 +133,7 @@ fun AssignmentScreen() {
 
 @Composable
 fun ShowAssignments(
-    assignemt: SyllabusModal,
-    viewModel: FirestoreViewModel,
-    context: Context,
-    isStudent: Boolean
+    assignemt: SyllabusModal, viewModel: FirestoreViewModel, context: Context, isStudent: Boolean
 ) {
 
     ElevatedCard(
@@ -156,7 +147,7 @@ fun ShowAssignments(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "Class: ${assignemt.clazz}",
+                "Class: ${assignemt.clazz} \t (${assignemt.date})",
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(top = 10.dp, start = 10.dp, end = 10.dp)
             )
@@ -169,12 +160,10 @@ fun ShowAssignments(
                     }
 
                     IconButton(onClick = {
-                        context.startActivity(
-                            Intent(context, AddAssignment::class.java).apply {
-                                putExtra("allData", assignemt)
-                                putExtra("isEditing", true)
-                            }
-                        )
+                        context.startActivity(Intent(context, AddAssignment::class.java).apply {
+                            putExtra("allData", assignemt)
+                            putExtra("isEditing", true)
+                        })
                     }) {
                         Icon(Icons.Default.Edit, "edit")
                     }

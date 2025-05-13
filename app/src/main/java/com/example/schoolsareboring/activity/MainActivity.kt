@@ -36,9 +36,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedCard
@@ -59,7 +57,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.schoolsareboring.BASE_URL
 import com.example.schoolsareboring.viewmodels.MainViewModel
 import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
@@ -67,6 +64,7 @@ import com.example.schoolsareboring.activity.assignments.AssignmentActivity
 import com.example.schoolsareboring.activity.attendance.Attendance
 import com.example.schoolsareboring.activity.loginsignup.UsertypeActivity
 import com.example.schoolsareboring.activity.myai.MyAi
+import com.example.schoolsareboring.activity.results.ResultActivity
 import com.example.schoolsareboring.activity.student.AddStudentActivity
 import com.example.schoolsareboring.activity.student.Students
 import com.example.schoolsareboring.activity.syllabus.Syllabus
@@ -224,7 +222,7 @@ fun MainContent() {
         HomeContent(R.drawable.results, "Results", "result"),
         HomeContent(R.drawable.fees, "Fees", "fees"),
         HomeContent(R.drawable.events, "Events", "events"),
-        HomeContent(R.drawable.mail, "Inbox", "inbox"),
+//        HomeContent(R.drawable.mail, "Inbox", "inbox"),
     )
 
     // Define what a student can see
@@ -266,10 +264,10 @@ fun MainContent() {
                                 "time_table" -> context.startActivity(Intent(context, TimeTable::class.java))
                                 "assignments" -> context.startActivity(Intent(context, AssignmentActivity::class.java))
                                 "exam" -> /*context.startActivity(Intent(context, ExamActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
-                                "result" -> context.startActivity(Intent(context, Result::class.java))
+                                "result" -> context.startActivity(Intent(context, ResultActivity::class.java))
                                 "fees" -> /*context.startActivity(Intent(context, FeesActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "events" -> /*context.startActivity(Intent(context, EventsActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
-                                "inbox" -> /*context.startActivity(Intent(context, InboxActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
+//                                "inbox" -> /*context.startActivity(Intent(context, InboxActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                             }
                         },
                     elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),

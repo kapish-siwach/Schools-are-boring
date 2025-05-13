@@ -40,6 +40,11 @@ class FirestoreViewModel : ViewModel() {
     private val _syllabus = mutableStateListOf<SyllabusModal>()
     val allSyllabus:List<SyllabusModal> get() = _syllabus
 
+    var results by mutableStateOf<List<SyllabusModal>>(emptyList())
+        private set
+    private val _results = mutableStateListOf<SyllabusModal>()
+    val allResults:List<SyllabusModal> get() = _results
+
     private var assignment by mutableStateOf<List<SyllabusModal>>(emptyList())
         private set
     private val _assignment = mutableStateListOf<SyllabusModal>()
@@ -513,6 +518,72 @@ class FirestoreViewModel : ViewModel() {
             }
             .addOnFailureListener {
                 Log.e("Firestore", "Error deleting Syllabus", it)
+                errorMessage = it.message
+            }
+            .addOnCompleteListener {
+                isLoading = false
+            }
+    }
+
+
+    //    Results
+
+
+    fun addResults(syllabusModal: SyllabusModal){
+        isLoading =true
+        errorMessage =null
+        db.collection("results")
+            .document(syllabusModal.clazz)
+            .set(syllabusModal)
+            .addOnSuccessListener {
+                isLoading = false
+                Log.d("Firestore", "Result added ")
+            }
+            .addOnFailureListener {
+                isLoading = false
+                Log.e("Firestore", "Error adding result", it)
+                errorMessage = it.message
+            }
+            .addOnCompleteListener {
+                isLoading = false
+            }
+    }
+
+    fun listenToResults() {
+        isLoading = true
+        errorMessage = null
+
+        db.collection("results")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    isLoading=false
+                    Log.e("Firestore", "Listen failed.", error)
+                    errorMessage = error.message
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val list = snapshot.documents.mapNotNull { it.toObject(SyllabusModal::class.java) }
+                    isLoading=false
+                    results = list
+                    _results.clear()
+                    _results.addAll(list)
+                }
+            }
+    }
+
+    fun deleteResults(clazz: String) {
+        isLoading = true
+        errorMessage = null
+
+        db.collection("results")
+            .document(clazz)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("Firestore", "Result deleted")
+            }
+            .addOnFailureListener {
+                Log.e("Firestore", "Error deleting Result", it)
                 errorMessage = it.message
             }
             .addOnCompleteListener {

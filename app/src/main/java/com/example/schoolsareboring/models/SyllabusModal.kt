@@ -4,5 +4,6 @@ import java.io.Serializable
 
 data class SyllabusModal(
     val clazz:String="",
-    val fileUrl: String=""
+    val fileUrl: String="",
+    val date: String=""
 ):Serializable
