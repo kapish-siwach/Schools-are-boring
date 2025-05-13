@@ -62,6 +62,7 @@ import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.R
 import com.example.schoolsareboring.activity.assignments.AssignmentActivity
 import com.example.schoolsareboring.activity.attendance.Attendance
+import com.example.schoolsareboring.activity.exams.ExamsActivity
 import com.example.schoolsareboring.activity.loginsignup.UsertypeActivity
 import com.example.schoolsareboring.activity.myai.MyAi
 import com.example.schoolsareboring.activity.results.ResultActivity
@@ -263,7 +264,7 @@ fun MainContent() {
                                 "syllabus" -> context.startActivity(Intent(context, Syllabus::class.java))
                                 "time_table" -> context.startActivity(Intent(context, TimeTable::class.java))
                                 "assignments" -> context.startActivity(Intent(context, AssignmentActivity::class.java))
-                                "exam" -> /*context.startActivity(Intent(context, ExamActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
+                                "exam" -> context.startActivity(Intent(context, ExamsActivity::class.java))
                                 "result" -> context.startActivity(Intent(context, ResultActivity::class.java))
                                 "fees" -> /*context.startActivity(Intent(context, FeesActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()
                                 "events" -> /*context.startActivity(Intent(context, EventsActivity::class.java))*/ Toast.makeText(context,"Coming soon!!",Toast.LENGTH_SHORT).show()

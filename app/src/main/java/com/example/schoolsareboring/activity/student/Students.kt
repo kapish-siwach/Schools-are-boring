@@ -71,7 +71,6 @@ fun StudentsScreen() {
     val loading by remember { mutableStateOf(viewModel.isLoading) }
 
     LaunchedEffect(Unit) {
-
         viewModel.listenToStudents()
     }
     val students = viewModel.allStudents

@@ -4,14 +4,12 @@ import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import com.example.schoolsareboring.models.AttendanceMark
+import com.example.schoolsareboring.models.ExamsModal
 import com.example.schoolsareboring.models.StudentData
 import com.example.schoolsareboring.models.SyllabusModal
 import com.example.schoolsareboring.models.TeachersData
 import com.example.schoolsareboring.models.UserData
-import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -35,12 +33,17 @@ class FirestoreViewModel : ViewModel() {
     private val _students= mutableStateListOf<StudentData>()
     val allStudents:List<StudentData> get() = _students
 
-    var syllabus by mutableStateOf<List<SyllabusModal>>(emptyList())
+    private var syllabus by mutableStateOf<List<SyllabusModal>>(emptyList())
         private set
     private val _syllabus = mutableStateListOf<SyllabusModal>()
     val allSyllabus:List<SyllabusModal> get() = _syllabus
 
-    var results by mutableStateOf<List<SyllabusModal>>(emptyList())
+    private var exams by mutableStateOf<List<ExamsModal>>(emptyList())
+        private set
+    private val _exams = mutableStateListOf<ExamsModal>()
+    val allExams:List<ExamsModal> get() = _exams
+
+    private var results by mutableStateOf<List<SyllabusModal>>(emptyList())
         private set
     private val _results = mutableStateListOf<SyllabusModal>()
     val allResults:List<SyllabusModal> get() = _results
@@ -50,7 +53,7 @@ class FirestoreViewModel : ViewModel() {
     private val _assignment = mutableStateListOf<SyllabusModal>()
     val allAssignment:List<SyllabusModal> get() = _assignment
 
-    var timetable by mutableStateOf<List<SyllabusModal>>(emptyList())
+    private var timetable by mutableStateOf<List<SyllabusModal>>(emptyList())
         private set
     private val _timetable = mutableStateListOf<SyllabusModal>()
     val allTimetable:List<SyllabusModal> get() = _timetable
@@ -326,6 +329,19 @@ class FirestoreViewModel : ViewModel() {
             }
     }
 
+    fun updateAdmitCardUrl(regNo: String, url: String) {
+        db.collection("students")
+            .document(regNo)
+            .update("admitCard", url)
+            .addOnSuccessListener {
+                Log.d("Firestore", "Admit card URL updated for $regNo")
+            }
+            .addOnFailureListener {
+                Log.e("Firestore", "Failed to update admit card URL", it)
+            }
+    }
+
+
     fun deleteStudent(studentId: String) {
         isLoading = true
         errorMessage = null
@@ -463,9 +479,7 @@ class FirestoreViewModel : ViewModel() {
             }
     }
 
-
 //    Syllabus
-
 
     fun addSyllabus(syllabusModal: SyllabusModal){
         isLoading =true
@@ -525,9 +539,69 @@ class FirestoreViewModel : ViewModel() {
             }
     }
 
+    //    Exams
+
+    fun addExams(examsModal: ExamsModal){
+        isLoading =true
+        errorMessage =null
+        db.collection("exams")
+            .document(examsModal.clazz)
+            .set(examsModal)
+            .addOnSuccessListener {
+                Log.d("Firestore", "Exams added ")
+            }
+            .addOnFailureListener {
+                Log.e("Firestore", "Error adding Exams", it)
+                errorMessage = it.message
+            }
+            .addOnCompleteListener {
+                isLoading = false
+            }
+    }
+
+    fun listenToExams() {
+        isLoading = true
+        errorMessage = null
+
+        db.collection("exams")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("Firestore", "Listen failed.", error)
+                    isLoading=false
+                    errorMessage = error.message
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    isLoading=false
+                    val list = snapshot.documents.mapNotNull { it.toObject(ExamsModal::class.java) }
+                    exams = list
+                    _exams.clear()
+                    _exams.addAll(list)
+                }
+            }
+    }
+
+    fun deleteExams(clazz: String) {
+        isLoading = true
+        errorMessage = null
+
+        db.collection("exams")
+            .document(clazz)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("Firestore", "Exams deleted")
+            }
+            .addOnFailureListener {
+                Log.e("Firestore", "Error deleting Exams", it)
+                errorMessage = it.message
+            }
+            .addOnCompleteListener {
+                isLoading = false
+            }
+    }
 
     //    Results
-
 
     fun addResults(syllabusModal: SyllabusModal){
         isLoading =true
@@ -657,8 +731,6 @@ class FirestoreViewModel : ViewModel() {
             }
     }
 
-
-
 //    Time Table
 
     fun addTimetable(syllabusModal: SyllabusModal){
@@ -718,6 +790,5 @@ class FirestoreViewModel : ViewModel() {
                 isLoading = false
             }
     }
-
 
 }

@@ -1,7 +1,9 @@
 package com.example.schoolsareboring
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.DatePicker
@@ -33,11 +35,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -47,6 +52,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -67,8 +73,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.schoolsareboring.activity.AdmitCardActivity
 import com.example.schoolsareboring.firestore.FirestoreViewModel
 import com.example.schoolsareboring.models.ChatItem
+import com.example.schoolsareboring.models.ExamsModal
 import com.example.schoolsareboring.models.SyllabusModal
 import com.example.schoolsareboring.models.UserType
 import io.noties.markwon.Markwon
@@ -393,6 +401,8 @@ fun ClassFilter(
     }
 }
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClassDropdownPicker(selectedClass: String, onClassSelected: (String) -> Unit, enabled: Boolean) {
@@ -648,6 +658,88 @@ fun OutlinedFileCard(
                     modifier = Modifier.size(35.dp).padding(2.dp),
                     colorResource(R.color.red)
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun DetailedCardView(
+    context: Context,
+    session: PreferenceManager,
+    isStudent: Boolean,
+    exam: ExamsModal,
+    onDelete: () -> Unit,
+    onEdit: () -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "Class: ${exam.clazz} \t (${exam.date})",
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(top = 10.dp, start = 10.dp, end = 10.dp)
+            )
+
+            if (!isStudent) {
+                Row {
+                    IconButton(
+                        onClick = onDelete,
+                        colors = IconButtonDefaults.iconButtonColors(contentColor = Color.Red)
+                    ) {
+                        Icon(Icons.Default.Delete, contentDescription = "delete")
+                    }
+
+                    IconButton(onClick = onEdit) {
+                        Icon(Icons.Default.Edit, contentDescription = "edit")
+                    }
+                }
+            }
+        }
+
+      /*  Spacer(
+            Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(color = Color.DarkGray)
+        )*/
+
+        HorizontalDivider(thickness = 1.dp)
+        Text(
+            exam.note,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            TextButton(onClick = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(exam.fileUrl))
+                try {
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Error opening file.", Toast.LENGTH_SHORT).show()
+                }
+            }) {
+                Text("Show date sheet", fontSize = 16.sp)
+            }
+
+            TextButton(onClick = {
+               context.startActivity(Intent(context,AdmitCardActivity::class.java))
+                (context as Activity).finish()
+            }) {
+                Text("Download admit card", fontSize = 16.sp)
             }
         }
     }

@@ -25,6 +25,11 @@
         android:theme="@style/Theme.SchoolsAreBoring"
         tools:targetApi="31">
         <activity
+            android:name=".activity.AdmitCardActivity"
+            android:exported="false"
+            android:label="@string/title_activity_admit_card"
+            android:theme="@style/Theme.SchoolsAreBoring" />
+        <activity
             android:name=".activity.exams.ExamsActivity"
             android:exported="false"
             android:label="@string/title_activity_exams"

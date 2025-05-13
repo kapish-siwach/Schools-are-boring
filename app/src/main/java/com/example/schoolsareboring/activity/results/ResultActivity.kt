@@ -42,7 +42,8 @@ import com.example.schoolsareboring.PreferenceManager
 import com.example.schoolsareboring.activity.results.ui.theme.SchoolsAreBoringTheme
 import com.example.schoolsareboring.firestore.FirestoreViewModel
 
-class ResultActivity : ComponentActivity() {
+class
+ResultActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -74,8 +75,7 @@ fun ResultsScreen() {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Results" +
-                        "") },
+                title = { Text("Results") },
                 navigationIcon = {
                     IconButton(onClick = { (context as Activity).finish() }) {
                         Icon(Icons.AutoMirrored.Default.KeyboardArrowLeft, "back")

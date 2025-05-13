@@ -22,4 +22,5 @@
     <string name="title_activity_add_assignment">AddAssignment</string>
     <string name="title_activity_add_result">AddResult</string>
     <string name="title_activity_exams">ExamsActivity</string>
+    <string name="title_activity_admit_card">AdmitCardActivity</string>
 </resources>

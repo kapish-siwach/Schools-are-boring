@@ -13,6 +13,7 @@ data class StudentData (
     val rollNo:String = "",
     val phone: String = "",
     val gender:String = "",
+    val admitCard:String = "",
     val imageUri: String? = null
 ):Serializable
 
